@@ -16,7 +16,7 @@ import SectionLabel from '@/components/ui/SectionLabel'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Nosotros — Riverpar SAS',
+  title: 'Nosotros',
   description:
     'Conoce a Constructora Riverpar SAS, comprometida con la calidad y el cumplimiento en proyectos residenciales.',
 }

@@ -14,7 +14,7 @@ const WA_MESSAGE =
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings()
   return {
-    title: 'Contacto — Riverpar SAS',
+    title: 'Contacto',
     description: settings?.seo_description ?? DEFAULT_DESCRIPTION,
   }
 }

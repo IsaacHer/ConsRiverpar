@@ -61,10 +61,11 @@ export default function ProjectGallery({ media, projectName }: ProjectGalleryPro
             >
               <Image
                 src={item.public_url}
-                alt={item.alt_text ?? projectName}
+                alt={item.alt_text ?? `Imagen de ${projectName}`}
                 fill
                 className="object-cover"
                 sizes="80px"
+                loading="lazy"
               />
             </button>
           ))}

@@ -24,10 +24,11 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         {project.mainImage ? (
           <Image
             src={project.mainImage.public_url}
-            alt={project.mainImage.alt_text ?? project.name}
+            alt={project.mainImage.alt_text ?? `Imagen de ${project.name}`}
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 50vw"
+            loading="lazy"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">

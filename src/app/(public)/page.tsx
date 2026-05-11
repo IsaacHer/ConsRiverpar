@@ -7,7 +7,7 @@ import SectionLabel from '@/components/ui/SectionLabel'
 import HomeSearchBar from '@/components/projects/HomeSearchBar'
 import ProjectCard from '@/components/projects/ProjectCard'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 const WHY_ITEMS = [
   {

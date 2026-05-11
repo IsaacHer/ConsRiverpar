@@ -53,13 +53,13 @@ export async function generateMetadata({
   const description = project.short_description ?? project.name
 
   return {
-    title: `${project.name} — Riverpar SAS`,
+    title: project.name,
     description,
     alternates: {
       canonical: `/proyectos/${project.slug}`,
     },
     openGraph: {
-      title: `${project.name} — Riverpar SAS`,
+      title: project.name,
       description,
       type: 'website',
       ...(mainImage ? { images: [mainImage.public_url] } : {}),

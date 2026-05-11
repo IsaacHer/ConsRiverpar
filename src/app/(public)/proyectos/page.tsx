@@ -11,10 +11,10 @@ import ProjectCard from '@/components/projects/ProjectCard'
 import CatalogFilter from '@/components/projects/CatalogFilter'
 import OrdenSelect from '@/components/projects/OrdenSelect'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Proyectos — Riverpar SAS',
+  title: 'Proyectos',
   description: 'Explora nuestro catálogo de proyectos residenciales en Cúcuta.',
 }
 
