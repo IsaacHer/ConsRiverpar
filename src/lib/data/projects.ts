@@ -115,6 +115,97 @@ export async function getPublicProjects(
   }
 }
 
+export type ProjectDetailMedia = {
+  id: string
+  public_url: string
+  alt_text: string | null
+  is_main: boolean
+  sort_order: number
+}
+
+export type ProjectDetailAmenity = {
+  id: string
+  name: string
+  sort_order: number
+}
+
+export type ProjectDetail = {
+  id: string
+  slug: string
+  name: string
+  short_description: string | null
+  description: string | null
+  location_city: string
+  location_zone: string | null
+  price_base_cop: number | null
+  price_visible: boolean
+  area_m2: number | null
+  bedrooms: number | null
+  bathrooms: number | null
+  parking_spaces: number | null
+  commercial_status: CommercialStatus
+  published_at: string | null
+  media: ProjectDetailMedia[]
+  amenities: ProjectDetailAmenity[]
+}
+
+type RawProjectDetail = Omit<ProjectDetail, 'media' | 'amenities'> & {
+  project_media: Array<ProjectDetailMedia & { deleted_at: string | null }>
+  project_amenities: ProjectDetailAmenity[]
+}
+
+export async function getProjectBySlug(slug: string): Promise<ProjectDetail | null> {
+  try {
+    const supabase = createClient()
+
+    const { data, error } = await supabase
+      .from('projects')
+      .select(
+        `id, slug, name, short_description, description, location_city, location_zone,
+         price_base_cop, price_visible, area_m2, bedrooms, bathrooms,
+         parking_spaces, commercial_status, published_at,
+         project_media ( id, public_url, alt_text, is_main, sort_order, deleted_at ),
+         project_amenities ( id, name, sort_order )`
+      )
+      .eq('slug', slug)
+      .eq('publication_status', 'publicado')
+      .is('deleted_at', null)
+      .single()
+
+    if (error || !data) return null
+
+    const raw = data as unknown as RawProjectDetail
+
+    return {
+      ...raw,
+      media: (raw.project_media ?? [])
+        .filter((m) => m.deleted_at === null)
+        .sort((a, b) => a.sort_order - b.sort_order),
+      amenities: (raw.project_amenities ?? []).sort(
+        (a, b) => a.sort_order - b.sort_order
+      ),
+    }
+  } catch {
+    return null
+  }
+}
+
+export async function getPublishedSlugs(): Promise<string[]> {
+  try {
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from('projects')
+      .select('slug')
+      .eq('publication_status', 'publicado')
+      .is('deleted_at', null)
+
+    if (error || !data) return []
+    return data.map((r: { slug: string }) => r.slug)
+  } catch {
+    return []
+  }
+}
+
 export async function getSiteSettings(): Promise<SiteSettings | null> {
   try {
     const supabase = createClient()
