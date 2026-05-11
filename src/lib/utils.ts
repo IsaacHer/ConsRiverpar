@@ -19,7 +19,7 @@ export function buildWhatsAppUrl(
   projectName: string,
   projectUrl: string
 ): string {
-  const message = `Hola, estoy interesado en el proyecto *${projectName}*. Lo vi en: ${projectUrl}`
+  const message = `Hola, estoy interesado(a) en el proyecto ${projectName}. ¿Podrían brindarme más información? ${projectUrl}`
   const encoded = encodeURIComponent(message)
   const cleanPhone = phone.replace(/\D/g, '')
   return `https://wa.me/${cleanPhone}?text=${encoded}`
