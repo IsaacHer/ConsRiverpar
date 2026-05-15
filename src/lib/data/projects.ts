@@ -155,50 +155,45 @@ type RawProjectDetail = Omit<ProjectDetail, 'media' | 'amenities'> & {
 }
 
 export async function getProjectBySlug(slug: string): Promise<ProjectDetail | null> {
-  console.log('[getProjectBySlug] slug:', slug)
+  try {
+    const supabase = createClient()
 
-  const supabase = createClient()
-  console.log('[getProjectBySlug] supabase client created')
+    const { data, error } = await supabase
+      .from('projects')
+      .select(
+        `id, slug, name, short_description, description, location_city, location_zone,
+         price_base_cop, price_visible, area_m2, bedrooms, bathrooms,
+         parking_spaces, commercial_status, published_at,
+         project_media ( id, public_url, alt_text, is_main, sort_order, deleted_at ),
+         project_amenities ( id, name, sort_order )`
+      )
+      .eq('slug', slug)
+      .eq('publication_status', 'publicado')
+      .is('deleted_at', null)
+      .single()
 
-  const { data, error } = await supabase
-    .from('projects')
-    .select(
-      `id, slug, name, short_description, description, location_city, location_zone,
-       price_base_cop, price_visible, area_m2, bedrooms, bathrooms,
-       parking_spaces, commercial_status, published_at,
-       project_media ( id, public_url, alt_text, is_main, sort_order, deleted_at ),
-       project_amenities ( id, name, sort_order )`
-    )
-    .eq('slug', slug)
-    .eq('publication_status', 'publicado')
-    .is('deleted_at', null)
-    .single()
+    if (error) {
+      if (error.code !== 'PGRST116') {
+        console.error('getProjectBySlug:', error.code, error.message)
+      }
+      return null
+    }
+    if (!data) return null
 
-  console.log('[getProjectBySlug] query done. error:', error, 'hasData:', !!data)
+    const raw = data as unknown as RawProjectDetail
 
-  if (error) {
-    console.error('[getProjectBySlug] SUPABASE ERROR:', JSON.stringify(error))
-    if (error.code !== 'PGRST116') throw error
+    return {
+      ...raw,
+      media: (raw.project_media ?? [])
+        .filter((m) => m.deleted_at === null)
+        .sort((a, b) => a.sort_order - b.sort_order)
+        .slice(0, 20),
+      amenities: (raw.project_amenities ?? []).sort(
+        (a, b) => a.sort_order - b.sort_order
+      ),
+    }
+  } catch {
     return null
-  }
-  if (!data) {
-    console.log('[getProjectBySlug] no data returned')
-    return null
-  }
-
-  const raw = data as unknown as RawProjectDetail
-  console.log('[getProjectBySlug] media count:', raw.project_media?.length)
-  console.log('[getProjectBySlug] amenities count:', raw.project_amenities?.length)
-
-  return {
-    ...raw,
-    media: (raw.project_media ?? [])
-      .filter((m) => m.deleted_at === null)
-      .sort((a, b) => a.sort_order - b.sort_order)
-      .slice(0, 20),
-    amenities: (raw.project_amenities ?? []).sort(
-      (a, b) => a.sort_order - b.sort_order
-    ),
   }
 }
 
