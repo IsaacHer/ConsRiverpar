@@ -172,7 +172,13 @@ export async function getProjectBySlug(slug: string): Promise<ProjectDetail | nu
       .is('deleted_at', null)
       .single()
 
-    if (error || !data) return null
+    if (error) {
+      if (error.code !== 'PGRST116') {
+        console.error('getProjectBySlug:', error.code, error.message)
+      }
+      return null
+    }
+    if (!data) return null
 
     const raw = data as unknown as RawProjectDetail
 
@@ -180,7 +186,8 @@ export async function getProjectBySlug(slug: string): Promise<ProjectDetail | nu
       ...raw,
       media: (raw.project_media ?? [])
         .filter((m) => m.deleted_at === null)
-        .sort((a, b) => a.sort_order - b.sort_order),
+        .sort((a, b) => a.sort_order - b.sort_order)
+        .slice(0, 20),
       amenities: (raw.project_amenities ?? []).sort(
         (a, b) => a.sort_order - b.sort_order
       ),
@@ -190,21 +197,6 @@ export async function getProjectBySlug(slug: string): Promise<ProjectDetail | nu
   }
 }
 
-export async function getPublishedSlugs(): Promise<string[]> {
-  try {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('projects')
-      .select('slug')
-      .eq('publication_status', 'publicado')
-      .is('deleted_at', null)
-
-    if (error || !data) return []
-    return data.map((r: { slug: string }) => r.slug)
-  } catch {
-    return []
-  }
-}
 
 export async function getSiteSettings(): Promise<SiteSettings | null> {
   try {

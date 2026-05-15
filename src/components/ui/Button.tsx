@@ -1,11 +1,12 @@
 import Link from 'next/link'
+import type { AnchorHTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
 interface ButtonProps {
   variant?: 'primary' | 'outline' | 'ghost'
   size?: 'sm' | 'md' | 'lg'
   href?: string
-  target?: React.HTMLAttributeAnchorTarget
+  target?: AnchorHTMLAttributes<HTMLAnchorElement>['target']
   rel?: string
   children: React.ReactNode
   className?: string

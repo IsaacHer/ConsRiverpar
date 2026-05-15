@@ -18,7 +18,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Nosotros',
   description:
-    'Conoce a Constructora Riverpar SAS, comprometida con la calidad y el cumplimiento en proyectos residenciales.',
+    'Visita a la Constructora Riverpar SAS, comprometida con la calidad y el cumplimiento en proyectos residenciales.',
 }
 
 const VALUES = [
