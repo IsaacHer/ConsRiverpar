@@ -20,6 +20,7 @@ import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Container from '@/components/ui/Container'
 import ProjectGallery from '@/components/projects/ProjectGallery'
+import React from 'react'
 
 export const dynamic = 'force-dynamic'
 export const dynamicParams = true
@@ -106,11 +107,11 @@ export default async function ProjectDetailPage({
       value: project.area_m2 !== null ? `${project.area_m2} m²` : null,
     },
     { Icon: Car, label: 'Parqueaderos', value: project.parking_spaces },
-  ].filter((s) => s.value !== null) as {
-    Icon: React.ElementType
+  ].filter((s) => s.value !== null) as Array<{
+    Icon: React.FC<{ size?: number; className?: string; 'aria-hidden'?: string }>
     label: string
     value: string | number
-  }[]
+  }>
 
   const cleanDescription = project.description ? stripHtml(project.description) : null
 

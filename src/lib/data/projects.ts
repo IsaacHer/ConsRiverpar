@@ -172,7 +172,13 @@ export async function getProjectBySlug(slug: string): Promise<ProjectDetail | nu
       .is('deleted_at', null)
       .single()
 
-    if (error || !data) return null
+    if (error) {
+      if (error.code !== 'PGRST116') {
+        console.error('getProjectBySlug:', error.code, error.message)
+      }
+      return null
+    }
+    if (!data) return null
 
     const raw = data as unknown as RawProjectDetail
 
