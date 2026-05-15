@@ -35,12 +35,21 @@ export default async function ProyectosPage({
 }) {
   const orden = (searchParams.orden as 'recientes' | 'precio_asc' | 'precio_desc') || 'recientes'
 
+  const VALID_STATUSES: CommercialStatus[] = ['preventa', 'en_obra', 'listo_entrega', 'vendido']
+  const validEstado = VALID_STATUSES.includes(searchParams.estado as CommercialStatus)
+    ? (searchParams.estado as CommercialStatus)
+    : undefined
+  const validPrecioMin = searchParams.precio_min ? Number(searchParams.precio_min) : undefined
+  const validPrecioMax = searchParams.precio_max ? Number(searchParams.precio_max) : undefined
+
   const filters = {
-    estado: searchParams.estado as CommercialStatus | undefined,
-    precio_min: searchParams.precio_min ? Number(searchParams.precio_min) : undefined,
-    precio_max: searchParams.precio_max ? Number(searchParams.precio_max) : undefined,
+    estado: validEstado,
+    precio_min: validPrecioMin,
+    precio_max: validPrecioMax,
     orden,
   }
+
+  const hasActiveFilters = !!(validEstado || validPrecioMin || validPrecioMax)
 
   const [projects, settings] = await Promise.all([
     getPublicProjects(filters),
@@ -89,21 +98,15 @@ export default async function ProyectosPage({
       <section className="py-8 bg-white border-b border-rp-gray-200">
         <Container>
           <Suspense>
-            <CatalogFilter />
+            <CatalogFilter count={projects.length} hasActiveFilters={hasActiveFilters} />
           </Suspense>
         </Container>
       </section>
 
-      {/* ── Sección 3: Encabezado del catálogo ── */}
+      {/* ── Sección 3: Orden ── */}
       <section className="pt-8 pb-4 bg-white">
         <Container>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <p className="text-sm text-rp-gray-700">
-              Mostrando{' '}
-              <span className="font-semibold text-rp-black">{projects.length}</span>{' '}
-              proyecto{projects.length !== 1 ? 's' : ''}
-            </p>
-
+          <div className="flex justify-end">
             <Suspense>
               <OrdenSelect currentOrden={orden} />
             </Suspense>
