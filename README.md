@@ -17,6 +17,7 @@ Permite a los visitantes explorar el catálogo de proyectos, filtrarlos y contac
 | Iconos | lucide-react |
 | Fuentes | DM Sans + Playfair Display (next/font/google) |
 | Deploy | Vercel |
+| Gestor de paquetes | pnpm 11 |
 
 ---
 
@@ -48,24 +49,24 @@ cp .env.example .env.local
 
 ```bash
 # 1. Instalar dependencias
-npm install
+pnpm install
 
 # 2. Configurar variables de entorno
 cp .env.example .env.local
 # Editar .env.local con los valores reales
 
 # 3. Iniciar servidor de desarrollo
-npm run dev
+pnpm dev
 ```
 
 El sitio estará disponible en `http://localhost:3000`.
 
 ```bash
 # Verificar TypeScript
-npm run type-check
+pnpm type-check
 
 # Build de producción local
-npm run build && npm start
+pnpm build && pnpm start
 ```
 
 ---

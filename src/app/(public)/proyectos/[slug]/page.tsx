@@ -21,7 +21,7 @@ import Button from '@/components/ui/Button'
 import Container from '@/components/ui/Container'
 import ProjectGallery from '@/components/projects/ProjectGallery'
 
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 export const dynamicParams = true
 
 function stripHtml(input: string): string {
@@ -37,8 +37,12 @@ function stripHtml(input: string): string {
 }
 
 export async function generateStaticParams() {
-  const slugs = await getPublishedSlugs()
-  return slugs.map((slug) => ({ slug }))
+  try {
+    const slugs = await getPublishedSlugs()
+    return slugs.map((slug) => ({ slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({
@@ -46,24 +50,28 @@ export async function generateMetadata({
 }: {
   params: { slug: string }
 }): Promise<Metadata> {
-  const project = await getProjectBySlug(params.slug)
-  if (!project) return {}
+  try {
+    const project = await getProjectBySlug(params.slug)
+    if (!project) return { title: 'Proyecto | Riverpar SAS' }
 
-  const mainImage = project.media.find((m) => m.is_main) ?? project.media[0]
-  const description = project.short_description ?? project.name
+    const mainImage = project.media.find((m) => m.is_main) ?? project.media[0]
+    const description = project.short_description ?? project.name
 
-  return {
-    title: project.name,
-    description,
-    alternates: {
-      canonical: `/proyectos/${project.slug}`,
-    },
-    openGraph: {
+    return {
       title: project.name,
       description,
-      type: 'website',
-      ...(mainImage ? { images: [mainImage.public_url] } : {}),
-    },
+      alternates: {
+        canonical: `/proyectos/${project.slug}`,
+      },
+      openGraph: {
+        title: project.name,
+        description,
+        type: 'website',
+        ...(mainImage ? { images: [mainImage.public_url] } : {}),
+      },
+    }
+  } catch {
+    return { title: 'Proyecto | Riverpar SAS' }
   }
 }
 
