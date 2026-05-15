@@ -3,8 +3,16 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useRef } from 'react'
 import Button from '@/components/ui/Button'
+import type { CommercialStatus } from '@/types'
 
-export default function CatalogFilter() {
+const VALID_STATUSES: CommercialStatus[] = ['preventa', 'en_obra', 'listo_entrega', 'vendido']
+
+interface Props {
+  count: number
+  hasActiveFilters: boolean
+}
+
+export default function CatalogFilter({ count, hasActiveFilters }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -12,12 +20,11 @@ export default function CatalogFilter() {
   const precioMinRef = useRef<HTMLInputElement>(null)
   const precioMaxRef = useRef<HTMLInputElement>(null)
 
-  const currentEstado = searchParams.get('estado') ?? ''
+  const rawEstado = searchParams.get('estado') ?? ''
+  const currentEstado = VALID_STATUSES.includes(rawEstado as CommercialStatus) ? rawEstado : ''
   const currentPrecioMin = searchParams.get('precio_min') ?? ''
   const currentPrecioMax = searchParams.get('precio_max') ?? ''
   const currentOrden = searchParams.get('orden') ?? ''
-
-  const hasFilters = !!(currentEstado || currentPrecioMin || currentPrecioMax)
 
   function handleSearch() {
     const params = new URLSearchParams()
@@ -102,11 +109,16 @@ export default function CatalogFilter() {
         <Button size="md" onClick={handleSearch}>
           Buscar
         </Button>
-        {hasFilters && (
+        {hasActiveFilters && (
           <Button variant="ghost" size="md" onClick={handleClear}>
             Limpiar filtros
           </Button>
         )}
+        <p className="ml-auto text-sm text-rp-gray-700">
+          Mostrando{' '}
+          <span className="font-semibold text-rp-black">{count}</span>{' '}
+          proyecto{count !== 1 ? 's' : ''}
+        </p>
       </div>
     </div>
   )
