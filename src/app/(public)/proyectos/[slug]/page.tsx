@@ -12,7 +12,6 @@ import {
 import type { Metadata } from 'next'
 import {
   getProjectBySlug,
-  getPublishedSlugs,
   getSiteSettings,
 } from '@/lib/data/projects'
 import { formatPrice, buildWhatsAppUrl } from '@/lib/utils'
@@ -37,14 +36,6 @@ function stripHtml(input: string): string {
     .trim()
 }
 
-export async function generateStaticParams() {
-  try {
-    const slugs = await getPublishedSlugs()
-    return slugs.map((slug) => ({ slug }))
-  } catch {
-    return []
-  }
-}
 
 export async function generateMetadata({
   params,
