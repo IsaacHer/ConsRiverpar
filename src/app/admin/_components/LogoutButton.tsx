@@ -1,9 +1,13 @@
 'use client'
 
-import { LogOut } from 'lucide-react'
+import { useState } from 'react'
+import { LogOut, Loader2 } from 'lucide-react'
 
 export default function LogoutButton() {
+  const [loading, setLoading] = useState(false)
+
   async function handleLogout() {
+    setLoading(true)
     await fetch('/api/auth/logout', { method: 'POST' })
     window.location.href = '/login'
   }
@@ -11,10 +15,15 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="flex items-center gap-2 text-white/60 hover:text-white text-sm transition-colors w-full"
+      disabled={loading}
+      className="flex items-center gap-2 text-white/60 hover:text-white text-sm transition-colors w-full disabled:opacity-50"
     >
-      <LogOut size={14} />
-      Cerrar sesión
+      {loading ? (
+        <Loader2 size={14} className="animate-spin" />
+      ) : (
+        <LogOut size={14} />
+      )}
+      {loading ? 'Cerrando sesión…' : 'Cerrar sesión'}
     </button>
   )
 }
