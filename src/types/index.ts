@@ -67,3 +67,11 @@ export interface SiteSettings {
   seo_title: string | null
   seo_description: string | null
 }
+
+export interface Profile {
+  id: string
+  full_name: string
+  email: string
+  role: 'admin'
+  is_active: boolean
+}
