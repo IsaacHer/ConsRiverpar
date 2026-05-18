@@ -15,7 +15,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen bg-rp-gray-100">
+    <div className="flex min-h-screen bg-rp-gray-100">
       <aside className="w-60 bg-rp-black flex flex-col fixed inset-y-0 left-0 z-10">
         <div className="px-6 py-5 border-b border-white/10">
           <span className="font-display text-white text-xl tracking-wide">RIVERPAR</span>
@@ -31,8 +31,8 @@ export default async function AdminLayout({
         </div>
       </aside>
 
-      <main className="flex-1 ml-60 overflow-y-auto">
-        <div className="p-8">{children}</div>
+      <main className="flex-1 ml-60">
+        <div className="p-8 min-h-screen">{children}</div>
       </main>
     </div>
   )
