@@ -1,6 +1,34 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import type { CommercialStatus, PublicationStatus, Profile } from '@/types'
 
+export type CreateProjectInput = {
+  name: string
+  short_description?: string | null
+  location_city: string
+  location_zone?: string | null
+  address_reference?: string | null
+  price_base_cop?: number | null
+  price_visible: boolean
+  bedrooms?: number | null
+  bathrooms?: number | null
+  parking_spaces?: number | null
+  area_m2?: number | null
+  stratum?: number | null
+  commercial_status: CommercialStatus
+  publication_status: PublicationStatus
+  featured: boolean
+}
+
+function toSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+}
+
 export type AdminProject = {
   id: string
   slug: string
@@ -103,6 +131,61 @@ export async function getAdminStats(): Promise<AdminStats> {
     }
   } catch {
     return EMPTY_STATS
+  }
+}
+
+export async function createProject(
+  input: CreateProjectInput
+): Promise<{ project: AdminProject | null; error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+
+    const baseSlug = toSlug(input.name)
+    let slug = baseSlug
+    let suffix = 2
+
+    for (;;) {
+      const { data: existing } = await supabase
+        .from('projects')
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle()
+      if (!existing) break
+      slug = `${baseSlug}-${suffix++}`
+    }
+
+    const publishedAt = input.publication_status === 'publicado' ? new Date().toISOString() : null
+
+    const { data, error } = await supabase
+      .from('projects')
+      .insert({
+        name: input.name,
+        slug,
+        short_description: input.short_description ?? null,
+        location_city: input.location_city,
+        location_zone: input.location_zone ?? null,
+        address_reference: input.address_reference ?? null,
+        price_base_cop: input.price_base_cop ?? null,
+        price_visible: input.price_visible,
+        bedrooms: input.bedrooms ?? null,
+        bathrooms: input.bathrooms ?? null,
+        parking_spaces: input.parking_spaces ?? null,
+        area_m2: input.area_m2 ?? null,
+        stratum: input.stratum ?? null,
+        commercial_status: input.commercial_status,
+        publication_status: input.publication_status,
+        featured: input.featured,
+        published_at: publishedAt,
+      })
+      .select(
+        'id, slug, name, commercial_status, publication_status, featured, published_at, created_at, deleted_at'
+      )
+      .single()
+
+    if (error) return { project: null, error: error.message }
+    return { project: data as AdminProject, error: null }
+  } catch {
+    return { project: null, error: 'Error al crear el proyecto. Intenta de nuevo.' }
   }
 }
 
