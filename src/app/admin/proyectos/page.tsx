@@ -3,30 +3,20 @@ import { Star, Pencil, ExternalLink, Plus } from 'lucide-react'
 import { getAdminProjects } from '@/lib/data/admin'
 import Badge from '@/components/ui/Badge'
 import SuccessBanner from './_components/SuccessBanner'
-import type { PublicationStatus } from '@/types'
+import StatusQuickChange, { type VisibleStatus } from './_components/StatusQuickChange'
+import ArchiveButton from './_components/ArchiveButton'
+import RestoreButton from './_components/RestoreButton'
+import PermanentDeleteButton from './_components/PermanentDeleteButton'
 
-const PILL: Record<PublicationStatus, string> = {
-  publicado: 'bg-green-100 text-green-700',
-  borrador: 'bg-rp-gray-100 text-rp-gray-700',
-  oculto: 'bg-amber-100 text-amber-700',
-  archivado: 'bg-red-100 text-red-700',
-}
-const PILL_LABEL: Record<PublicationStatus, string> = {
-  publicado: 'Publicado',
-  borrador: 'Borrador',
-  oculto: 'Oculto',
-  archivado: 'Archivado',
-}
-
-const TABS: { label: string; value: PublicationStatus | 'todos' }[] = [
+const TABS: { label: string; value: string }[] = [
   { label: 'Todos', value: 'todos' },
   { label: 'Publicado', value: 'publicado' },
   { label: 'Borrador', value: 'borrador' },
   { label: 'Oculto', value: 'oculto' },
-  { label: 'Archivado', value: 'archivado' },
+  { label: 'Eliminado', value: 'eliminado' },
 ]
 
-const VALID_ESTADOS = ['publicado', 'borrador', 'oculto', 'archivado'] as const
+const VALID_ESTADOS = ['publicado', 'borrador', 'oculto', 'eliminado'] as const
 type ValidEstado = (typeof VALID_ESTADOS)[number]
 
 function isValidEstado(s: string | undefined): s is ValidEstado {
@@ -36,15 +26,26 @@ function isValidEstado(s: string | undefined): s is ValidEstado {
 export default async function ProyectosPage({
   searchParams,
 }: {
-  searchParams: { estado?: string; creado?: string }
+  searchParams: { estado?: string; creado?: string; editado?: string; restaurado?: string; borrado?: string }
 }) {
   const proyectos = await getAdminProjects()
   const estadoFiltro = isValidEstado(searchParams.estado) ? searchParams.estado : undefined
   const creado = searchParams.creado === '1'
+  const editado = searchParams.editado === '1'
+  const restaurado = searchParams.restaurado === '1'
+  const borrado = searchParams.borrado === '1'
 
-  const filtrados = estadoFiltro
-    ? proyectos.filter((p) => p.publication_status === estadoFiltro)
-    : proyectos
+  const filtrados = (() => {
+    if (estadoFiltro === 'eliminado') {
+      return proyectos.filter((p) => p.deleted_at !== null)
+    }
+    if (estadoFiltro) {
+      return proyectos.filter(
+        (p) => p.deleted_at === null && p.publication_status === estadoFiltro
+      )
+    }
+    return proyectos.filter((p) => p.deleted_at === null)
+  })()
 
   return (
     <div className="space-y-6">
@@ -60,8 +61,10 @@ export default async function ProyectosPage({
         </Link>
       </div>
 
-      {/* Success banner */}
       {creado && <SuccessBanner message="Proyecto creado correctamente." />}
+      {editado && <SuccessBanner message="Proyecto actualizado correctamente." />}
+      {restaurado && <SuccessBanner message="Proyecto recuperado. Ahora está en Borrador y puedes editarlo desde el filtro Todos." />}
+      {borrado && <SuccessBanner message="Proyecto eliminado permanentemente." />}
 
       {/* Filter tabs */}
       <div className="flex gap-1 flex-wrap">
@@ -75,7 +78,11 @@ export default async function ProyectosPage({
               href={href}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                 active
-                  ? 'bg-rp-black text-white'
+                  ? value === 'eliminado'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-rp-black text-white'
+                  : value === 'eliminado'
+                  ? 'bg-white border border-red-200 text-red-500 hover:border-red-400'
                   : 'bg-white border border-rp-gray-200 text-rp-gray-700 hover:border-rp-black'
               }`}
             >
@@ -89,13 +96,15 @@ export default async function ProyectosPage({
       {filtrados.length === 0 ? (
         <div className="bg-white rounded-xl border border-rp-gray-200 p-12 text-center space-y-4">
           <p className="text-rp-gray-500">No hay proyectos en esta categoría.</p>
-          <Link
-            href="/admin/proyectos/nuevo"
-            className="inline-flex items-center gap-2 bg-rp-red text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-rp-red-dark transition-colors"
-          >
-            <Plus size={15} />
-            Crear primer proyecto
-          </Link>
+          {estadoFiltro !== 'eliminado' && (
+            <Link
+              href="/admin/proyectos/nuevo"
+              className="inline-flex items-center gap-2 bg-rp-red text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-rp-red-dark transition-colors"
+            >
+              <Plus size={15} />
+              Crear primer proyecto
+            </Link>
+          )}
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-rp-gray-200 overflow-hidden">
@@ -122,7 +131,7 @@ export default async function ProyectosPage({
                   return (
                     <tr
                       key={p.id}
-                      className={`hover:bg-rp-gray-100/40 transition-colors ${deleted ? 'opacity-50' : ''}`}
+                      className={`hover:bg-rp-gray-100/40 transition-colors ${deleted ? 'opacity-60' : ''}`}
                     >
                       <td className="px-5 py-3">
                         <p className="font-medium text-rp-black">{p.name}</p>
@@ -137,11 +146,10 @@ export default async function ProyectosPage({
                             Eliminado
                           </span>
                         ) : (
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${PILL[p.publication_status]}`}
-                          >
-                            {PILL_LABEL[p.publication_status]}
-                          </span>
+                          <StatusQuickChange
+                            id={p.id}
+                            status={(p.publication_status === 'archivado' ? 'borrador' : p.publication_status) as VisibleStatus}
+                          />
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -151,7 +159,12 @@ export default async function ProyectosPage({
                       </td>
                       <td className="px-4 py-3 text-xs text-rp-gray-500">{fecha}</td>
                       <td className="px-4 py-3">
-                        {deleted ? null : (
+                        {deleted ? (
+                          <div className="flex items-center gap-3">
+                            <RestoreButton id={p.id} />
+                            <PermanentDeleteButton id={p.id} name={p.name} />
+                          </div>
+                        ) : (
                           <div className="flex items-center gap-3">
                             <Link
                               href={`/admin/proyectos/${p.id}/editar`}
@@ -169,6 +182,7 @@ export default async function ProyectosPage({
                               <ExternalLink size={13} />
                               Ver en vitrina
                             </Link>
+                            <ArchiveButton id={p.id} />
                           </div>
                         )}
                       </td>

@@ -4,6 +4,7 @@ import type { CommercialStatus, PublicationStatus, Profile } from '@/types'
 export type CreateProjectInput = {
   name: string
   short_description?: string | null
+  description?: string | null
   location_city: string
   location_zone?: string | null
   address_reference?: string | null
@@ -162,6 +163,7 @@ export async function createProject(
         name: input.name,
         slug,
         short_description: input.short_description ?? null,
+        description: input.description ?? null,
         location_city: input.location_city,
         location_zone: input.location_zone ?? null,
         address_reference: input.address_reference ?? null,
@@ -186,6 +188,155 @@ export async function createProject(
     return { project: data as AdminProject, error: null }
   } catch {
     return { project: null, error: 'Error al crear el proyecto. Intenta de nuevo.' }
+  }
+}
+
+export type FullProject = {
+  id: string
+  slug: string
+  name: string
+  short_description: string | null
+  description: string | null
+  location_city: string
+  location_zone: string | null
+  address_reference: string | null
+  price_base_cop: number | null
+  price_visible: boolean
+  bedrooms: number | null
+  bathrooms: number | null
+  parking_spaces: number | null
+  area_m2: number | null
+  stratum: number | null
+  commercial_status: CommercialStatus
+  publication_status: PublicationStatus
+  featured: boolean
+  published_at: string | null
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}
+
+export async function getAdminProjectById(id: string): Promise<FullProject | null> {
+  try {
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from('projects')
+      .select(
+        'id, slug, name, short_description, description, location_city, location_zone, address_reference, price_base_cop, price_visible, bedrooms, bathrooms, parking_spaces, area_m2, stratum, commercial_status, publication_status, featured, published_at, created_at, updated_at, deleted_at'
+      )
+      .eq('id', id)
+      .maybeSingle()
+    if (error || !data) return null
+    return data as FullProject
+  } catch {
+    return null
+  }
+}
+
+export async function updateProject(
+  id: string,
+  data: CreateProjectInput
+): Promise<{ error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+
+    const patch: Record<string, unknown> = {
+      name: data.name,
+      short_description: data.short_description ?? null,
+      description: data.description ?? null,
+      location_city: data.location_city,
+      location_zone: data.location_zone ?? null,
+      address_reference: data.address_reference ?? null,
+      price_base_cop: data.price_base_cop ?? null,
+      price_visible: data.price_visible,
+      bedrooms: data.bedrooms ?? null,
+      bathrooms: data.bathrooms ?? null,
+      parking_spaces: data.parking_spaces ?? null,
+      area_m2: data.area_m2 ?? null,
+      stratum: data.stratum ?? null,
+      commercial_status: data.commercial_status,
+      publication_status: data.publication_status,
+      featured: data.featured,
+      updated_at: new Date().toISOString(),
+    }
+
+    if (data.publication_status === 'publicado') {
+      const { data: existing } = await supabase
+        .from('projects')
+        .select('published_at')
+        .eq('id', id)
+        .single()
+      if (existing?.published_at === null) {
+        patch.published_at = new Date().toISOString()
+      }
+    }
+
+    const { error } = await supabase.from('projects').update(patch).eq('id', id)
+    if (error) return { error: error.message }
+    return { error: null }
+  } catch {
+    return { error: 'Error al actualizar el proyecto. Intenta de nuevo.' }
+  }
+}
+
+export async function updateProjectStatus(
+  id: string,
+  field: 'publication_status' | 'commercial_status' | 'featured',
+  value: string | boolean
+): Promise<{ error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+    const { error } = await supabase
+      .from('projects')
+      .update({ [field]: value, updated_at: new Date().toISOString() })
+      .eq('id', id)
+    if (error) return { error: error.message }
+    return { error: null }
+  } catch {
+    return { error: 'Error al actualizar el estado. Intenta de nuevo.' }
+  }
+}
+
+export async function archiveProject(id: string): Promise<{ error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+    const { error } = await supabase
+      .from('projects')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', id)
+    if (error) return { error: error.message }
+    return { error: null }
+  } catch {
+    return { error: 'Error al archivar el proyecto. Intenta de nuevo.' }
+  }
+}
+
+export async function restoreProject(id: string): Promise<{ error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+    const { error } = await supabase
+      .from('projects')
+      .update({
+        deleted_at: null,
+        publication_status: 'borrador',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+    if (error) return { error: error.message }
+    return { error: null }
+  } catch {
+    return { error: 'Error al recuperar el proyecto. Intenta de nuevo.' }
+  }
+}
+
+export async function permanentlyDeleteProject(id: string): Promise<{ error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+    const { error } = await supabase.from('projects').delete().eq('id', id)
+    if (error) return { error: error.message }
+    return { error: null }
+  } catch {
+    return { error: 'Error al eliminar el proyecto. Intenta de nuevo.' }
   }
 }
 
