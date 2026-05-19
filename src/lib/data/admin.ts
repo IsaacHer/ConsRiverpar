@@ -1,5 +1,5 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
-import type { CommercialStatus, PublicationStatus, Profile } from '@/types'
+import type { CommercialStatus, PublicationStatus, Profile, ProjectMedia } from '@/types'
 
 export type CreateProjectInput = {
   name: string
@@ -337,6 +337,21 @@ export async function permanentlyDeleteProject(id: string): Promise<{ error: str
     return { error: null }
   } catch {
     return { error: 'Error al eliminar el proyecto. Intenta de nuevo.' }
+  }
+}
+
+export async function getProjectMedia(projectId: string): Promise<ProjectMedia[]> {
+  try {
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from('project_media')
+      .select('id, project_id, media_type, r2_key, public_url, alt_text, sort_order, is_main, mime_type, size_bytes')
+      .eq('project_id', projectId)
+      .order('sort_order', { ascending: true })
+    if (error || !data) return []
+    return data as ProjectMedia[]
+  } catch {
+    return []
   }
 }
 
