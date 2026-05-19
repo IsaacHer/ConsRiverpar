@@ -1,18 +1,22 @@
+export const dynamic = 'force-dynamic'
+
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronRight, Star } from 'lucide-react'
-import { getAdminProjectById, getProjectMedia } from '@/lib/data/admin'
+import { ChevronRight } from 'lucide-react'
+import { getAdminProjectById, getProjectMedia, getProjectAmenities } from '@/lib/data/admin'
 import ProjectForm from '../../_components/ProjectForm'
 import ImagesSection from '../../_components/ImagesSection'
+import AmenitiesSection from '../../_components/AmenitiesSection'
 
 export default async function EditarProyectoPage({
   params,
 }: {
   params: { id: string }
 }) {
-  const [project, media] = await Promise.all([
+  const [project, media, amenities] = await Promise.all([
     getAdminProjectById(params.id),
     getProjectMedia(params.id),
+    getProjectAmenities(params.id),
   ])
   if (!project) notFound()
 
@@ -32,6 +36,8 @@ export default async function EditarProyectoPage({
       <ProjectForm mode="edit" project={project} />
 
       <ImagesSection projectId={project.id} initialMedia={media} />
+
+      <AmenitiesSection projectId={project.id} initialAmenities={amenities} />
     </div>
   )
 }

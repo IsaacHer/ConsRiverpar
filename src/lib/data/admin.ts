@@ -1,5 +1,5 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
-import type { CommercialStatus, PublicationStatus, Profile, ProjectMedia } from '@/types'
+import type { CommercialStatus, PublicationStatus, Profile, ProjectMedia, ProjectAmenity } from '@/types'
 
 export type CreateProjectInput = {
   name: string
@@ -347,11 +347,142 @@ export async function getProjectMedia(projectId: string): Promise<ProjectMedia[]
       .from('project_media')
       .select('id, project_id, media_type, r2_key, public_url, alt_text, sort_order, is_main, mime_type, size_bytes')
       .eq('project_id', projectId)
+      .is('deleted_at', null)
       .order('sort_order', { ascending: true })
     if (error || !data) return []
     return data as ProjectMedia[]
   } catch {
     return []
+  }
+}
+
+export async function setMainImage(
+  mediaId: string,
+  projectId: string
+): Promise<{ error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+    // Solo quitar is_main de registros ACTIVOS (deleted_at IS NULL)
+    const { error: e1 } = await supabase
+      .from('project_media')
+      .update({ is_main: false })
+      .eq('project_id', projectId)
+      .is('deleted_at', null)
+    if (e1) return { error: e1.message }
+    const { error: e2 } = await supabase
+      .from('project_media')
+      .update({ is_main: true })
+      .eq('id', mediaId)
+    if (e2) return { error: e2.message }
+    return { error: null }
+  } catch {
+    return { error: 'Error al actualizar la imagen principal.' }
+  }
+}
+
+export async function updateMediaOrder(
+  updates: { id: string; sort_order: number }[]
+): Promise<{ error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+    for (const { id, sort_order } of updates) {
+      const { error } = await supabase
+        .from('project_media')
+        .update({ sort_order })
+        .eq('id', id)
+      if (error) return { error: error.message }
+    }
+    return { error: null }
+  } catch {
+    return { error: 'Error al actualizar el orden.' }
+  }
+}
+
+export async function deleteMedia(mediaId: string): Promise<{ error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+    const { data: record } = await supabase
+      .from('project_media')
+      .select('id, project_id, is_main, sort_order')
+      .eq('id', mediaId)
+      .single()
+    if (!record) return { error: 'Registro no encontrado.' }
+
+    const { error } = await supabase
+      .from('project_media')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', mediaId)
+    if (error) return { error: error.message }
+
+    if (record.is_main) {
+      const { data: next } = await supabase
+        .from('project_media')
+        .select('id')
+        .eq('project_id', record.project_id)
+        .is('deleted_at', null)
+        .order('sort_order', { ascending: true })
+        .limit(1)
+        .maybeSingle()
+      if (next) {
+        await supabase.from('project_media').update({ is_main: true }).eq('id', next.id)
+      }
+    }
+
+    return { error: null }
+  } catch {
+    return { error: 'Error al eliminar la imagen.' }
+  }
+}
+
+export async function getProjectAmenities(projectId: string): Promise<ProjectAmenity[]> {
+  try {
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from('project_amenities')
+      .select('id, project_id, name, sort_order')
+      .eq('project_id', projectId)
+      .order('sort_order', { ascending: true })
+    if (error || !data) return []
+    return data as ProjectAmenity[]
+  } catch {
+    return []
+  }
+}
+
+export async function addAmenity(
+  projectId: string,
+  name: string
+): Promise<{ id: string; error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+    const { data: last } = await supabase
+      .from('project_amenities')
+      .select('sort_order')
+      .eq('project_id', projectId)
+      .order('sort_order', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    const sortOrder = last ? (last.sort_order ?? 0) + 1 : 0
+    const { data, error } = await supabase
+      .from('project_amenities')
+      .insert({ project_id: projectId, name: name.trim(), sort_order: sortOrder })
+      .select('id')
+      .single()
+    if (error || !data) return { id: '', error: error?.message ?? 'Error al agregar amenidad.' }
+    return { id: data.id, error: null }
+  } catch {
+    return { id: '', error: 'Error al agregar amenidad.' }
+  }
+}
+
+export async function deleteAmenity(id: string): Promise<{ error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+    const { error } = await supabase.from('project_amenities').delete().eq('id', id)
+    if (error) return { error: error.message }
+    return { error: null }
+  } catch {
+    return { error: 'Error al eliminar amenidad.' }
   }
 }
 

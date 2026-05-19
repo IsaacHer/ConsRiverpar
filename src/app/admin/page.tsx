@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import { Globe, TrendingUp, HardHat, Star, AlertCircle, Plus } from 'lucide-react'
 import { getAdminStats } from '@/lib/data/admin'
