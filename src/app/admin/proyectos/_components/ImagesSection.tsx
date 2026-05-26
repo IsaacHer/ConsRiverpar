@@ -31,8 +31,11 @@ export default function ImagesSection({
 
       <ImageUploader
         projectId={projectId}
-        onUploadComplete={(item) => {
-          galleryRef.current?.addItem(item)
+        onUploadComplete={() => {
+          // No agregamos al estado local optimísticamente.
+          // router.refresh() recarga el Server Component desde Supabase
+          // y el useEffect en ProjectMediaGallery sincroniza el estado
+          // con los datos reales de la BD — única fuente de verdad.
           router.refresh()
         }}
       />

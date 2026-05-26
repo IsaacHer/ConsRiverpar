@@ -1,4 +1,5 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { deleteFromR2 } from '@/lib/r2'
 import type { CommercialStatus, PublicationStatus, Profile, ProjectMedia, ProjectAmenity } from '@/types'
 
 export type CreateProjectInput = {
@@ -332,8 +333,26 @@ export async function restoreProject(id: string): Promise<{ error: string | null
 export async function permanentlyDeleteProject(id: string): Promise<{ error: string | null }> {
   try {
     const supabase = createServiceClient()
+
+    const { data: mediaRecords } = await supabase
+      .from('project_media')
+      .select('r2_key')
+      .eq('project_id', id)
+
     const { error } = await supabase.from('projects').delete().eq('id', id)
     if (error) return { error: error.message }
+
+    if (mediaRecords && mediaRecords.length > 0) {
+      const deletePromises = mediaRecords
+        .filter((m) => m.r2_key)
+        .map((m) =>
+          deleteFromR2(m.r2_key).catch((e) =>
+            console.error('Error eliminando de R2:', m.r2_key, e)
+          )
+        )
+      await Promise.allSettled(deletePromises)
+    }
+
     return { error: null }
   } catch {
     return { error: 'Error al eliminar el proyecto. Intenta de nuevo.' }
@@ -341,19 +360,35 @@ export async function permanentlyDeleteProject(id: string): Promise<{ error: str
 }
 
 export async function getProjectMedia(projectId: string): Promise<ProjectMedia[]> {
-  try {
+  // Retry hasta 2 veces — en el primer render en frío de Next.js
+  // Supabase puede retornar vacío por una condición de carrera
+  // con la inicialización de variables de entorno.
+  for (let attempt = 1; attempt <= 2; attempt++) {
     const supabase = createServiceClient()
     const { data, error } = await supabase
       .from('project_media')
-      .select('id, project_id, media_type, r2_key, public_url, alt_text, sort_order, is_main, mime_type, size_bytes')
+      .select(
+        'id, project_id, media_type, r2_key, public_url, ' +
+        'alt_text, sort_order, is_main, mime_type, size_bytes'
+      )
       .eq('project_id', projectId)
       .is('deleted_at', null)
       .order('sort_order', { ascending: true })
-    if (error || !data) return []
-    return data as ProjectMedia[]
-  } catch {
-    return []
+    if (error) {
+      console.error(`getProjectMedia error (intento ${attempt}):`, error.message)
+      if (attempt === 2) return []
+      continue
+    }
+    if (data && data.length > 0) {
+      return data as unknown as ProjectMedia[]
+    }
+    // Si retornó vacío en primer intento, espera 100ms y reintenta
+    if (attempt === 1) {
+      console.warn('getProjectMedia: retornó vacío, reintentando...')
+      await new Promise((r) => setTimeout(r, 100))
+    }
   }
+  return []
 }
 
 export async function setMainImage(
@@ -401,30 +436,37 @@ export async function updateMediaOrder(
 export async function deleteMedia(mediaId: string): Promise<{ error: string | null }> {
   try {
     const supabase = createServiceClient()
+
     const { data: record } = await supabase
       .from('project_media')
-      .select('id, project_id, is_main, sort_order')
+      .select('id, project_id, is_main, sort_order, r2_key')
       .eq('id', mediaId)
       .single()
     if (!record) return { error: 'Registro no encontrado.' }
-
-    const { error } = await supabase
-      .from('project_media')
-      .update({ deleted_at: new Date().toISOString() })
-      .eq('id', mediaId)
-    if (error) return { error: error.message }
 
     if (record.is_main) {
       const { data: next } = await supabase
         .from('project_media')
         .select('id')
         .eq('project_id', record.project_id)
+        .neq('id', mediaId)
         .is('deleted_at', null)
         .order('sort_order', { ascending: true })
         .limit(1)
         .maybeSingle()
       if (next) {
         await supabase.from('project_media').update({ is_main: true }).eq('id', next.id)
+      }
+    }
+
+    const { error } = await supabase.from('project_media').delete().eq('id', mediaId)
+    if (error) return { error: error.message }
+
+    if (record.r2_key) {
+      try {
+        await deleteFromR2(record.r2_key)
+      } catch (r2Error) {
+        console.error('Error al eliminar archivo de R2:', r2Error)
       }
     }
 
@@ -435,18 +477,28 @@ export async function deleteMedia(mediaId: string): Promise<{ error: string | nu
 }
 
 export async function getProjectAmenities(projectId: string): Promise<ProjectAmenity[]> {
-  try {
+  // Retry hasta 2 veces — mismo patrón que getProjectMedia
+  for (let attempt = 1; attempt <= 2; attempt++) {
     const supabase = createServiceClient()
     const { data, error } = await supabase
       .from('project_amenities')
       .select('id, project_id, name, sort_order')
       .eq('project_id', projectId)
       .order('sort_order', { ascending: true })
-    if (error || !data) return []
-    return data as ProjectAmenity[]
-  } catch {
-    return []
+    if (error) {
+      console.error(`getProjectAmenities error (intento ${attempt}):`, error.message)
+      if (attempt === 2) return []
+      continue
+    }
+    if (data && data.length > 0) {
+      return data as unknown as ProjectAmenity[]
+    }
+    if (attempt === 1) {
+      console.warn('getProjectAmenities: retornó vacío, reintentando...')
+      await new Promise((r) => setTimeout(r, 100))
+    }
   }
+  return []
 }
 
 export async function addAmenity(

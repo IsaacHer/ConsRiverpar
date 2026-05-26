@@ -24,6 +24,7 @@ type RawProject = Omit<FeaturedProject, 'mainImage'> & {
     public_url: string
     alt_text: string | null
     is_main: boolean
+    deleted_at: string | null
   }>
 }
 
@@ -37,7 +38,7 @@ export async function getFeaturedProjects(): Promise<FeaturedProject[]> {
         `id, slug, name, short_description, location_city, location_zone,
          price_base_cop, price_visible, area_m2, bedrooms, bathrooms,
          parking_spaces, commercial_status, published_at,
-         project_media ( public_url, alt_text, is_main )`
+         project_media!inner ( public_url, alt_text, is_main, deleted_at )`
       )
       .eq('publication_status', 'publicado')
       .is('deleted_at', null)
@@ -49,7 +50,10 @@ export async function getFeaturedProjects(): Promise<FeaturedProject[]> {
 
     return (data as unknown as RawProject[]).map(({ project_media, ...rest }) => ({
       ...rest,
-      mainImage: project_media?.find((m) => m.is_main) ?? null,
+      mainImage:
+        project_media
+          ?.filter((m) => !m.deleted_at)
+          .find((m) => m.is_main) ?? null,
     }))
   } catch {
     return []
@@ -77,7 +81,7 @@ export async function getPublicProjects(
         `id, slug, name, short_description, location_city, location_zone,
          price_base_cop, price_visible, area_m2, bedrooms, bathrooms,
          parking_spaces, commercial_status, published_at,
-         project_media ( public_url, alt_text, is_main )`
+         project_media ( public_url, alt_text, is_main, deleted_at )`
       )
       .eq('publication_status', 'publicado')
       .is('deleted_at', null)
@@ -108,7 +112,10 @@ export async function getPublicProjects(
 
     return (data as unknown as RawProject[]).map(({ project_media, ...rest }) => ({
       ...rest,
-      mainImage: project_media?.find((m) => m.is_main) ?? null,
+      mainImage:
+        project_media
+          ?.filter((m) => !m.deleted_at)
+          .find((m) => m.is_main) ?? null,
     }))
   } catch {
     return []
