@@ -7,16 +7,7 @@ import { AlertCircle, Loader2, Check, Lock, Info, ExternalLink, CheckCircle2 } f
 import { createProject, updateProject } from '../actions'
 import type { CommercialStatus, PublicationStatus } from '@/types'
 import type { FullProject } from '@/lib/data/admin'
-
-function toSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-}
+import { toSlug } from '@/lib/utils'
 
 function formatCOP(value: string): string {
   const n = Number(value)
@@ -96,11 +87,7 @@ export default function ProjectForm({ mode, project }: Props) {
     project?.stratum ? String(project.stratum) : ''
   )
 
-  // Sincroniza todos los campos cuando el Server Component recarga
-  // datos frescos de Supabase (después de router.refresh() o revalidatePath).
-  // Se usa project?.updated_at como dependencia porque React compara objetos
-  // por referencia — aunque los datos cambien, [project] puede no dispararse
-  // si Next.js reutiliza la misma referencia del objeto.
+  // Sincroniza campos cuando el servidor recarga datos frescos (updated_at cambia al guardar)
   useEffect(() => {
     if (!project) return
     setName(project.name ?? '')
@@ -176,7 +163,8 @@ export default function ProjectForm({ mode, project }: Props) {
           setSubmitError(result.error)
         } else {
           setSavedToast(true)
-          setTimeout(() => router.push('/admin/proyectos?editado=1'), 3000)
+          router.refresh()
+          setTimeout(() => router.push('/admin/proyectos?editado=1'), 1500)
         }
       } else {
         const result = await createProject(payload)

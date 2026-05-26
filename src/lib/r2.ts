@@ -3,12 +3,25 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { v4 as uuidv4 } from 'uuid'
 import path from 'path'
 
+const accountId = process.env.R2_ACCOUNT_ID
+const accessKeyId = process.env.R2_ACCESS_KEY_ID
+const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY
+const bucketName = process.env.R2_BUCKET_NAME
+
+if (!accountId || !accessKeyId || !secretAccessKey || !bucketName) {
+  console.warn(
+    '[r2] Variables de entorno de Cloudflare R2 no configuradas. ' +
+    'La subida de imágenes no funcionará hasta configurar ' +
+    'R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY y R2_BUCKET_NAME'
+  )
+}
+
 const r2Client = new S3Client({
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
   region: 'auto',
   credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    accessKeyId: accessKeyId ?? '',
+    secretAccessKey: secretAccessKey ?? '',
   },
 })
 
@@ -20,7 +33,7 @@ export function generateR2Key(projectId: string, fileName: string): string {
 
 export async function generatePresignedUrl(r2Key: string, mimeType: string): Promise<string> {
   const command = new PutObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME!,
+    Bucket: bucketName ?? '',
     Key: r2Key,
     ContentType: mimeType,
   })
@@ -29,7 +42,7 @@ export async function generatePresignedUrl(r2Key: string, mimeType: string): Pro
 
 export async function deleteFromR2(r2Key: string): Promise<void> {
   const command = new DeleteObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME!,
+    Bucket: bucketName ?? '',
     Key: r2Key,
   })
   await r2Client.send(command)

@@ -64,10 +64,9 @@ export function createServiceClient() {
     )
   }
 
+  // El service client no maneja sesiones de usuario
   _serviceClient = createServerClient(url, key, {
     auth: {
-      // Desactiva la persistencia de sesión — el service client
-      // no necesita cookies ni tokens de usuario
       persistSession: false,
       autoRefreshToken: false,
       detectSessionInUrl: false,
