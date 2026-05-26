@@ -1,6 +1,6 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { deleteFromR2 } from '@/lib/r2'
-import type { CommercialStatus, PublicationStatus, Profile, ProjectMedia, ProjectAmenity } from '@/types'
+import type { CommercialStatus, PublicationStatus, Profile, ProjectMedia, ProjectAmenity, SiteSettings } from '@/types'
 
 export type CreateProjectInput = {
   name: string
@@ -535,6 +535,52 @@ export async function deleteAmenity(id: string): Promise<{ error: string | null 
     return { error: null }
   } catch {
     return { error: 'Error al eliminar amenidad.' }
+  }
+}
+
+export async function getSiteSettingsAdmin(): Promise<SiteSettings | null> {
+  const supabase = createServiceClient()
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('*')
+    .single()
+  if (error) {
+    console.error('getSiteSettingsAdmin error:', error.message)
+    return null
+  }
+  return data as SiteSettings
+}
+
+export type SiteSettingsInput = {
+  company_name: string
+  contact_whatsapp: string | null
+  contact_email: string | null
+  address: string | null
+  seo_title: string | null
+  seo_description: string | null
+}
+
+export async function updateSiteSettings(
+  id: string,
+  data: SiteSettingsInput
+): Promise<{ error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+    const { error } = await supabase
+      .from('site_settings')
+      .update({
+        company_name: data.company_name.trim(),
+        contact_whatsapp: data.contact_whatsapp?.trim() || null,
+        contact_email: data.contact_email?.trim() || null,
+        address: data.address?.trim() || null,
+        seo_title: data.seo_title?.trim() || null,
+        seo_description: data.seo_description?.trim() || null,
+      })
+      .eq('id', id)
+    if (error) return { error: error.message }
+    return { error: null }
+  } catch {
+    return { error: 'Error al guardar la configuración.' }
   }
 }
 

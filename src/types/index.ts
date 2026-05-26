@@ -66,6 +66,7 @@ export interface SiteSettings {
   address: string | null
   seo_title: string | null
   seo_description: string | null
+  updated_at?: string
 }
 
 export interface Profile {
