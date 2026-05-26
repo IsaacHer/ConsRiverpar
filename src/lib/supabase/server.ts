@@ -45,17 +45,38 @@ export function createClient() {
   }
 }
 
+// Cliente singleton para operaciones administrativas con service role key.
+// Se inicializa una sola vez cuando el módulo se carga, evitando la
+// condición de carrera del primer render en frío de Next.js donde
+// process.env puede no estar completamente disponible en cada llamada.
+let _serviceClient: ReturnType<typeof createServerClient> | null = null
+
 export function createServiceClient() {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return []
-        },
-        setAll() {},
-      },
-    }
-  )
+  if (_serviceClient) return _serviceClient
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url || !key) {
+    throw new Error(
+      '[createServiceClient] Variables de entorno no disponibles. ' +
+      'Verifica NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY en .env.local'
+    )
+  }
+
+  _serviceClient = createServerClient(url, key, {
+    auth: {
+      // Desactiva la persistencia de sesión — el service client
+      // no necesita cookies ni tokens de usuario
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    cookies: {
+      getAll() { return [] },
+      setAll() {},
+    },
+  })
+
+  return _serviceClient
 }

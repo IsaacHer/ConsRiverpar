@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import { Star, Pencil, ExternalLink, Plus } from 'lucide-react'
 import { getAdminProjects } from '@/lib/data/admin'

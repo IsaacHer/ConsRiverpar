@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { v4 as uuidv4 } from 'uuid'
 import path from 'path'
@@ -25,4 +25,12 @@ export async function generatePresignedUrl(r2Key: string, mimeType: string): Pro
     ContentType: mimeType,
   })
   return getSignedUrl(r2Client, command, { expiresIn: 300 })
+}
+
+export async function deleteFromR2(r2Key: string): Promise<void> {
+  const command = new DeleteObjectCommand({
+    Bucket: process.env.R2_BUCKET_NAME!,
+    Key: r2Key,
+  })
+  await r2Client.send(command)
 }

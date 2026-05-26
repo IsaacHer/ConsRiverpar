@@ -43,13 +43,15 @@ export async function POST(req: NextRequest) {
 
     const { data: existing } = await service
       .from('project_media')
-      .select('id, sort_order')
+      .select('id, sort_order, is_main')
       .eq('project_id', projectId)
+      .is('deleted_at', null)
       .order('sort_order', { ascending: false })
       .limit(1)
 
-    const isMain = !existing || existing.length === 0
-    const sortOrder = isMain ? 0 : (existing[0].sort_order ?? 0) + 1
+    const hasActiveImages = existing && existing.length > 0
+    const isMain = !hasActiveImages
+    const sortOrder = hasActiveImages ? (existing[0].sort_order ?? 0) + 1 : 0
 
     const { data, error } = await service
       .from('project_media')

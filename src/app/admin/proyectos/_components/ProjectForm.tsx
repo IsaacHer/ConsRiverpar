@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { AlertCircle, Loader2, Check, Lock, Info, ExternalLink, CheckCircle2 } from 'lucide-react'
@@ -68,6 +68,64 @@ export default function ProjectForm({ mode, project }: Props) {
   const [slugErr, setSlugErr] = useState<string | null>(null)
   const [cityErr, setCityErr] = useState<string | null>(null)
 
+  const [locationCity, setLocationCity] = useState(
+    project?.location_city ?? 'Cúcuta'
+  )
+  const [locationZone, setLocationZone] = useState(
+    project?.location_zone ?? ''
+  )
+  const [addressRef, setAddressRef] = useState(
+    project?.address_reference ?? ''
+  )
+  const [priceBase, setPriceBase] = useState(
+    project?.price_base_cop ? String(project.price_base_cop) : ''
+  )
+  const [bedrooms, setBedrooms] = useState(
+    project?.bedrooms ? String(project.bedrooms) : ''
+  )
+  const [bathrooms, setBathrooms] = useState(
+    project?.bathrooms ? String(project.bathrooms) : ''
+  )
+  const [parkingSpaces, setParkingSpaces] = useState(
+    project?.parking_spaces ? String(project.parking_spaces) : ''
+  )
+  const [areaM2, setAreaM2] = useState(
+    project?.area_m2 ? String(project.area_m2) : ''
+  )
+  const [stratum, setStratum] = useState(
+    project?.stratum ? String(project.stratum) : ''
+  )
+
+  // Sincroniza todos los campos cuando el Server Component recarga
+  // datos frescos de Supabase (después de router.refresh() o revalidatePath).
+  // Se usa project?.updated_at como dependencia porque React compara objetos
+  // por referencia — aunque los datos cambien, [project] puede no dispararse
+  // si Next.js reutiliza la misma referencia del objeto.
+  useEffect(() => {
+    if (!project) return
+    setName(project.name ?? '')
+    setSlug(project.slug ?? '')
+    setShortDesc(project.short_description ?? '')
+    setDescription(project.description ?? '')
+    setPriceHint(project.price_base_cop ? formatCOP(String(project.price_base_cop)) : '')
+    setPriceVisible(project.price_visible ?? true)
+    setFeatured(project.featured ?? false)
+    setCommercialStatus(project.commercial_status ?? 'preventa')
+    setPublicationStatus(
+      (project.publication_status === 'archivado' ? 'borrador' : project.publication_status) ?? 'borrador'
+    )
+    setLocationCity(project.location_city ?? 'Cúcuta')
+    setLocationZone(project.location_zone ?? '')
+    setAddressRef(project.address_reference ?? '')
+    setPriceBase(project.price_base_cop ? String(project.price_base_cop) : '')
+    setBedrooms(project.bedrooms ? String(project.bedrooms) : '')
+    setBathrooms(project.bathrooms ? String(project.bathrooms) : '')
+    setParkingSpaces(project.parking_spaces ? String(project.parking_spaces) : '')
+    setAreaM2(project.area_m2 ? String(project.area_m2) : '')
+    setStratum(project.stratum ? String(project.stratum) : '')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project?.id, project?.updated_at])
+
   function handleNameChange(value: string) {
     setName(value)
     if (nameErr && value.trim()) setNameErr(null)
@@ -82,40 +140,30 @@ export default function ProjectForm({ mode, project }: Props) {
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const fd = new FormData(e.currentTarget)
 
     let hasErr = false
     if (!name.trim()) { setNameErr('El nombre es requerido'); hasErr = true }
     if (!slug.trim()) { setSlugErr('El slug es requerido'); hasErr = true }
-    const city = (fd.get('location_city') as string).trim()
-    if (!city) { setCityErr('La ciudad es requerida'); hasErr = true }
+    if (!locationCity.trim()) { setCityErr('La ciudad es requerida'); hasErr = true }
     if (hasErr) return
-
-    const num = (key: string): number | null => {
-      const v = fd.get(key) as string
-      return v ? Number(v) : null
-    }
-    const str = (key: string): string | null => {
-      const v = (fd.get(key) as string).trim()
-      return v || null
-    }
 
     setSubmitError(null)
 
     const payload = {
       name: name.trim(),
+      slug: slug.trim(),
       short_description: shortDesc.trim() || null,
       description: description.trim() || null,
-      location_city: city,
-      location_zone: str('location_zone'),
-      address_reference: str('address_reference'),
-      price_base_cop: num('price_base_cop'),
+      location_city: locationCity.trim() || 'Cúcuta',
+      location_zone: locationZone.trim() || null,
+      address_reference: addressRef.trim() || null,
+      price_base_cop: priceBase ? Number(priceBase) : null,
       price_visible: priceVisible,
-      bedrooms: num('bedrooms'),
-      bathrooms: num('bathrooms'),
-      parking_spaces: num('parking_spaces'),
-      area_m2: num('area_m2'),
-      stratum: num('stratum'),
+      bedrooms: bedrooms ? Number(bedrooms) : null,
+      bathrooms: bathrooms ? Number(bathrooms) : null,
+      parking_spaces: parkingSpaces ? Number(parkingSpaces) : null,
+      area_m2: areaM2 ? Number(areaM2) : null,
+      stratum: stratum ? Number(stratum) : null,
       commercial_status: commercialStatus,
       publication_status: publicationStatus,
       featured,
@@ -263,8 +311,8 @@ export default function ProjectForm({ mode, project }: Props) {
               </label>
               <input
                 type="text"
-                name="location_city"
-                defaultValue={project?.location_city ?? 'Cúcuta'}
+                value={locationCity}
+                onChange={(e) => setLocationCity(e.target.value)}
                 onBlur={(e) => {
                   if (!e.target.value.trim()) setCityErr('La ciudad es requerida')
                   else setCityErr(null)
@@ -277,8 +325,8 @@ export default function ProjectForm({ mode, project }: Props) {
               <label className={labelCls}>Zona / Barrio</label>
               <input
                 type="text"
-                name="location_zone"
-                defaultValue={project?.location_zone ?? ''}
+                value={locationZone}
+                onChange={(e) => setLocationZone(e.target.value)}
                 className={inputCls}
                 placeholder="Ej. El Llano"
               />
@@ -289,8 +337,8 @@ export default function ProjectForm({ mode, project }: Props) {
             <label className={labelCls}>Referencia de dirección</label>
             <input
               type="text"
-              name="address_reference"
-              defaultValue={project?.address_reference ?? ''}
+              value={addressRef}
+              onChange={(e) => setAddressRef(e.target.value)}
               className={inputCls}
               placeholder="Ej. Calle 10 # 5-30, frente al parque"
             />
@@ -306,13 +354,15 @@ export default function ProjectForm({ mode, project }: Props) {
               <label className={labelCls}>Precio base (COP)</label>
               <input
                 type="number"
-                name="price_base_cop"
                 min="0"
                 step="1000000"
-                defaultValue={project?.price_base_cop ?? ''}
+                value={priceBase}
                 className={inputCls}
                 placeholder="150000000"
-                onChange={(e) => setPriceHint(formatCOP(e.target.value))}
+                onChange={(e) => {
+                  setPriceBase(e.target.value)
+                  setPriceHint(formatCOP(e.target.value))
+                }}
               />
               {priceHint && (
                 <p className="text-xs text-rp-gray-500 mt-1.5 font-mono">{priceHint}</p>
@@ -354,25 +404,25 @@ export default function ProjectForm({ mode, project }: Props) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
             <div>
               <label className={labelCls}>Habitaciones</label>
-              <input type="number" name="bedrooms" min="0" max="20" defaultValue={project?.bedrooms ?? ''} className={inputCls} placeholder="3" />
+              <input type="number" min="0" max="20" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className={inputCls} placeholder="3" />
             </div>
             <div>
               <label className={labelCls}>Baños</label>
-              <input type="number" name="bathrooms" min="0" max="20" defaultValue={project?.bathrooms ?? ''} className={inputCls} placeholder="2" />
+              <input type="number" min="0" max="20" value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} className={inputCls} placeholder="2" />
             </div>
             <div>
               <label className={labelCls}>Parqueaderos</label>
-              <input type="number" name="parking_spaces" min="0" max="10" defaultValue={project?.parking_spaces ?? ''} className={inputCls} placeholder="1" />
+              <input type="number" min="0" max="10" value={parkingSpaces} onChange={(e) => setParkingSpaces(e.target.value)} className={inputCls} placeholder="1" />
             </div>
             <div>
               <label className={labelCls}>Área (m²)</label>
-              <input type="number" name="area_m2" min="0" step="0.01" defaultValue={project?.area_m2 ?? ''} className={inputCls} placeholder="85.5" />
+              <input type="number" min="0" step="0.01" value={areaM2} onChange={(e) => setAreaM2(e.target.value)} className={inputCls} placeholder="85.5" />
             </div>
           </div>
 
           <div className="w-36">
             <label className={labelCls}>Estrato</label>
-            <select name="stratum" defaultValue={project?.stratum ?? ''} className={inputCls + ' cursor-pointer'}>
+            <select value={stratum} onChange={(e) => setStratum(e.target.value)} className={inputCls + ' cursor-pointer'}>
               <option value="">— Sin definir</option>
               {[1, 2, 3, 4, 5, 6].map((n) => (
                 <option key={n} value={n}>{n}</option>
