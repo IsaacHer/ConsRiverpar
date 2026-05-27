@@ -12,11 +12,9 @@ import {
 } from '@/lib/data/admin'
 import type { CreateProjectInput } from '@/lib/data/admin'
 
-// Revalida todas las rutas del admin que muestran datos de proyectos.
-// 'layout' hace que Next.js invalide también los segmentos anidados.
 function revalidateAdminPaths(id?: string) {
-  revalidatePath('/admin', 'layout')
-  revalidatePath('/admin/proyectos', 'layout')
+  revalidatePath('/admin/proyectos', 'page')
+  revalidatePath('/admin', 'page')
   if (id) {
     revalidatePath(`/admin/proyectos/${id}/editar`, 'page')
   }

@@ -2,6 +2,7 @@
 
 const nextConfig = {
   images: {
+    unoptimized: process.env.NODE_ENV === 'development',
     remotePatterns: [
       // CDN personalizado de Riverpar (producción)
       {
