@@ -68,14 +68,17 @@ export default async function ProyectosPage({
       {restaurado && <SuccessBanner message="Proyecto recuperado. Ahora está en Borrador y puedes editarlo desde el filtro Todos." />}
       {borrado && <SuccessBanner message="Proyecto eliminado permanentemente." />}
 
-      {/* Filter tabs */}
+      {/* Filter tabs — usa <a> en lugar de <Link> para forzar
+          una petición completa al servidor en cada cambio de filtro.
+          <Link> usa el router cache del cliente y puede servir
+          versiones desactualizadas aunque la página tenga force-dynamic. */}
       <div className="flex gap-1 flex-wrap">
         {TABS.map(({ label, value }) => {
           const active = (estadoFiltro ?? 'todos') === value
           const href =
             value === 'todos' ? '/admin/proyectos' : `/admin/proyectos?estado=${value}`
           return (
-            <Link
+            <a
               key={value}
               href={href}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
@@ -89,7 +92,7 @@ export default async function ProyectosPage({
               }`}
             >
               {label}
-            </Link>
+            </a>
           )
         })}
       </div>
@@ -131,18 +134,15 @@ export default async function ProyectosPage({
                     year: 'numeric',
                   })
                   return (
-                    <tr
-                      key={p.id}
-                      className={`hover:bg-rp-gray-100/40 transition-colors ${deleted ? 'opacity-60' : ''}`}
-                    >
-                      <td className="px-5 py-3">
-                        <p className="font-medium text-rp-black">{p.name}</p>
-                        <p className="text-xs text-rp-gray-500 font-mono">{p.slug}</p>
+                    <tr key={p.id} className={`hover:bg-rp-gray-50 transition-colors ${deleted ? 'opacity-60' : ''}`}>
+                      <td className="px-5 py-3.5">
+                        <div className="font-medium text-rp-black">{p.name}</div>
+                        <div className="text-xs text-rp-gray-400 font-mono mt-0.5">{p.slug}</div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3.5">
                         <Badge status={p.commercial_status} />
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3.5">
                         {deleted ? (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
                             Eliminado
@@ -150,17 +150,17 @@ export default async function ProyectosPage({
                         ) : (
                           <StatusQuickChange
                             id={p.id}
-                            status={(p.publication_status === 'archivado' ? 'borrador' : p.publication_status) as VisibleStatus}
+                            status={p.publication_status as VisibleStatus}
                           />
                         )}
                       </td>
-                      <td className="px-4 py-3 text-center">
-                        {p.featured && (
-                          <Star size={14} className="text-amber-400 fill-amber-400 mx-auto" />
-                        )}
+                      <td className="px-4 py-3.5 text-center">
+                        {p.featured && !deleted ? (
+                          <Star size={16} className="text-amber-400 fill-amber-400 mx-auto" />
+                        ) : null}
                       </td>
-                      <td className="px-4 py-3 text-xs text-rp-gray-500">{fecha}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3.5 text-rp-gray-500">{fecha}</td>
+                      <td className="px-4 py-3.5">
                         {deleted ? (
                           <div className="flex items-center gap-3">
                             <RestoreButton id={p.id} />
@@ -170,7 +170,7 @@ export default async function ProyectosPage({
                           <div className="flex items-center gap-3">
                             <Link
                               href={`/admin/proyectos/${p.id}/editar`}
-                              className="inline-flex items-center gap-1 text-rp-gray-500 hover:text-rp-black transition-colors"
+                              className="inline-flex items-center gap-1 text-rp-gray-600 hover:text-rp-black transition-colors text-sm"
                             >
                               <Pencil size={13} />
                               Editar
@@ -179,7 +179,7 @@ export default async function ProyectosPage({
                               href={`/proyectos/${p.slug}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-rp-gray-500 hover:text-rp-black transition-colors"
+                              className="inline-flex items-center gap-1 text-rp-gray-600 hover:text-rp-black transition-colors text-sm"
                             >
                               <ExternalLink size={13} />
                               Ver en vitrina
