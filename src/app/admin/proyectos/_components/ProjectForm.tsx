@@ -3,11 +3,32 @@
 import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { AlertCircle, Loader2, Check, Lock, Info, ExternalLink, CheckCircle2 } from 'lucide-react'
+import { AlertCircle, Loader2, Check, Lock, Info, ExternalLink, CheckCircle2, Play } from 'lucide-react'
 import { createProject, updateProject } from '../actions'
 import type { CommercialStatus, PublicationStatus } from '@/types'
 import type { FullProject } from '@/lib/data/admin'
-import { toSlug } from '@/lib/utils'
+import { toSlug, cn } from '@/lib/utils'
+
+function getEmbedUrl(url: string): string | null {
+  try {
+    const u = new URL(url)
+    if (u.hostname.includes('youtube.com')) {
+      const id = u.searchParams.get('v')
+      return id ? `https://www.youtube.com/embed/${id}` : null
+    }
+    if (u.hostname === 'youtu.be') {
+      const id = u.pathname.slice(1)
+      return id ? `https://www.youtube.com/embed/${id}` : null
+    }
+    if (u.hostname.includes('vimeo.com')) {
+      const id = u.pathname.split('/').filter(Boolean)[0]
+      return id ? `https://player.vimeo.com/video/${id}` : null
+    }
+    return null
+  } catch {
+    return null
+  }
+}
 
 function formatCOP(value: string): string {
   const n = Number(value)
@@ -43,6 +64,7 @@ export default function ProjectForm({ mode, project }: Props) {
   const [slugTouched, setSlugTouched] = useState(mode === 'edit')
   const [shortDesc, setShortDesc] = useState(project?.short_description ?? '')
   const [description, setDescription] = useState(project?.description ?? '')
+  const [videoUrl, setVideoUrl] = useState(project?.video_url ?? '')
   const [priceHint, setPriceHint] = useState(
     project?.price_base_cop ? formatCOP(String(project.price_base_cop)) : ''
   )
@@ -110,6 +132,7 @@ export default function ProjectForm({ mode, project }: Props) {
     setParkingSpaces(project.parking_spaces ? String(project.parking_spaces) : '')
     setAreaM2(project.area_m2 ? String(project.area_m2) : '')
     setStratum(project.stratum ? String(project.stratum) : '')
+    setVideoUrl(project.video_url ?? '')
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.id, project?.updated_at])
 
@@ -141,6 +164,7 @@ export default function ProjectForm({ mode, project }: Props) {
       slug: slug.trim(),
       short_description: shortDesc.trim() || null,
       description: description.trim() || null,
+      video_url: videoUrl.trim() || null,
       location_city: locationCity.trim() || 'Cúcuta',
       location_zone: locationZone.trim() || null,
       address_reference: addressRef.trim() || null,
@@ -285,6 +309,46 @@ export default function ProjectForm({ mode, project }: Props) {
               rows={8}
               placeholder="Descripción detallada del proyecto, características, entorno, amenidades, etc."
             />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="video_url"
+              className="block text-sm font-medium text-rp-gray-700"
+            >
+              Video del proyecto
+              <span className="ml-1.5 text-xs font-normal text-rp-gray-400">
+                (opcional)
+              </span>
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Play size={15} className="text-rp-gray-400" />
+              </div>
+              <input
+                id="video_url"
+                type="url"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                disabled={isPending}
+                placeholder="https://www.youtube.com/watch?v=... o https://vimeo.com/..."
+                className={cn(inputCls, 'pl-9')}
+              />
+            </div>
+            <p className="text-xs text-rp-gray-400">
+              Pega el enlace del video de YouTube o Vimeo.
+              Se mostrará como reproductor embebido en la vitrina.
+            </p>
+            {videoUrl && getEmbedUrl(videoUrl) && (
+              <div className="mt-2 aspect-video rounded-lg overflow-hidden border border-rp-gray-200 bg-rp-gray-100">
+                <iframe
+                  src={getEmbedUrl(videoUrl)!}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title="Preview del video"
+                />
+              </div>
+            )}
           </div>
         </section>
 

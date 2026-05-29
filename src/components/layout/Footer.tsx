@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Facebook, Instagram, Linkedin, MapPin, Phone, Mail } from 'lucide-react'
 import type { SiteSettings } from '@/types'
 
@@ -27,9 +28,13 @@ export default function Footer({ settings }: FooterProps) {
           {/* Col 1 — Marca */}
           <div className="space-y-4">
             <div>
-              <span className="font-display font-bold text-[22px] text-rp-red block leading-none">
-                RIVERPAR
-              </span>
+              <Image
+                src="/images/logo-white.png"
+                alt="Constructora Riverpar SAS"
+                width={120}
+                height={36}
+                className="object-contain h-9 w-auto"
+              />
               <p className="text-sm text-rp-gray-500 mt-3 leading-relaxed">
                 Construimos el hogar de tus sueños con calidad, confianza y visión de futuro.
               </p>

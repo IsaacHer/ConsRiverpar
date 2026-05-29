@@ -142,6 +142,7 @@ export type ProjectDetail = {
   name: string
   short_description: string | null
   description: string | null
+  video_url: string | null
   location_city: string
   location_zone: string | null
   price_base_cop: number | null
@@ -168,7 +169,7 @@ export async function getProjectBySlug(slug: string): Promise<ProjectDetail | nu
     const { data, error } = await supabase
       .from('projects')
       .select(
-        `id, slug, name, short_description, description, location_city, location_zone,
+        `id, slug, name, short_description, description, video_url, location_city, location_zone,
          price_base_cop, price_visible, area_m2, bedrooms, bathrooms,
          parking_spaces, commercial_status, published_at,
          project_media ( id, public_url, alt_text, is_main, sort_order, deleted_at ),

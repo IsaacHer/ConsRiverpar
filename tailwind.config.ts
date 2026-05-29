@@ -19,6 +19,8 @@ const config: Config = {
           200: '#E8E8E8',
           100: '#F5F5F5',
         },
+        'rp-cream': '#FDF8F6',
+        'rp-burgundy': '#6B1015',
       },
       fontFamily: {
         sans: ['DM Sans', 'sans-serif'],

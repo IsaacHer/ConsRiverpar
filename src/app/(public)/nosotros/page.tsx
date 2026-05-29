@@ -85,7 +85,7 @@ export default async function NosotrosPage() {
             <p className="text-[10px] font-bold text-rp-red tracking-widest uppercase">
               SOBRE RIVERPAR SAS
             </p>
-            <h1 className="font-display text-[40px] sm:text-[46px] font-bold leading-[1.15] text-white">
+            <h1 className="font-display text-[40px] sm:text-[46px] font-bold leading-[1.15] text-rp-burgundy">
               Construimos confianza.{' '}
               <span className="text-rp-red">Edificamos hogares.</span>
             </h1>

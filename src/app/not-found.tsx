@@ -1,16 +1,18 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-rp-gray-100 flex flex-col items-center justify-center px-4 text-center">
       {/* Logo */}
-      <Link href="/" className="flex flex-col items-center leading-none mb-10 group">
-        <span className="font-display font-bold text-[32px] text-rp-red tracking-tight">
-          RIVERPAR
-        </span>
-        <span className="text-[10px] text-rp-gray-500 tracking-[0.2em] uppercase mt-1">
-          Constructora S.A.S.
-        </span>
+      <Link href="/" aria-label="Inicio — Constructora Riverpar SAS" className="mb-10">
+        <Image
+          src="/images/logo-black.png"
+          alt="Constructora Riverpar SAS"
+          width={160}
+          height={48}
+          className="object-contain"
+        />
       </Link>
 
       {/* Número */}
