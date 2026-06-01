@@ -7,6 +7,7 @@ export type CreateProjectInput = {
   name: string
   short_description?: string | null
   description?: string | null
+  video_url?: string | null
   location_city: string
   location_zone?: string | null
   address_reference?: string | null
@@ -154,6 +155,7 @@ export async function createProject(
         slug,
         short_description: input.short_description ?? null,
         description: input.description ?? null,
+        video_url: input.video_url ?? null,
         location_city: input.location_city,
         location_zone: input.location_zone ?? null,
         address_reference: input.address_reference ?? null,
@@ -187,6 +189,7 @@ export type FullProject = {
   name: string
   short_description: string | null
   description: string | null
+  video_url: string | null
   location_city: string
   location_zone: string | null
   address_reference: string | null
@@ -212,7 +215,7 @@ export async function getAdminProjectById(id: string): Promise<FullProject | nul
     const { data, error } = await supabase
       .from('projects')
       .select(
-        'id, slug, name, short_description, description, location_city, location_zone, address_reference, price_base_cop, price_visible, bedrooms, bathrooms, parking_spaces, area_m2, stratum, commercial_status, publication_status, featured, published_at, created_at, updated_at, deleted_at'
+        'id, slug, name, short_description, description, video_url, location_city, location_zone, address_reference, price_base_cop, price_visible, bedrooms, bathrooms, parking_spaces, area_m2, stratum, commercial_status, publication_status, featured, published_at, created_at, updated_at, deleted_at'
       )
       .eq('id', id)
       .maybeSingle()
@@ -234,6 +237,7 @@ export async function updateProject(
       name: data.name,
       short_description: data.short_description ?? null,
       description: data.description ?? null,
+      video_url: data.video_url ?? null,
       location_city: data.location_city,
       location_zone: data.location_zone ?? null,
       address_reference: data.address_reference ?? null,

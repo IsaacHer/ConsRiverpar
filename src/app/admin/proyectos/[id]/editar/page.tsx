@@ -33,7 +33,7 @@ export default async function EditarProyectoPage({
         <h1 className="text-2xl font-semibold text-rp-black">Editar proyecto</h1>
       </div>
 
-      <ProjectForm mode="edit" project={project} />
+      <ProjectForm key={project.id} mode="edit" project={project} />
 
       <ImagesSection projectId={project.id} initialMedia={media} />
 

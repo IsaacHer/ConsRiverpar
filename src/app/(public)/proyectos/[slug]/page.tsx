@@ -135,7 +135,11 @@ export default async function ProjectDetailPage({
         <Container>
           <div className="grid lg:grid-cols-[3fr_2fr] gap-10 lg:gap-14 items-start">
             {/* Galería */}
-            <ProjectGallery media={project.media} projectName={project.name} />
+            <ProjectGallery
+                media={project.media}
+                projectName={project.name}
+                videoUrl={project.video_url}
+              />
 
             {/* Panel de información */}
             <div className="space-y-5">

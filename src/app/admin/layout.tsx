@@ -3,6 +3,8 @@ import { getCurrentProfile } from '@/lib/data/admin'
 import SidebarNav from './_components/SidebarNav'
 import LogoutButton from './_components/LogoutButton'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminLayout({
   children,
 }: {

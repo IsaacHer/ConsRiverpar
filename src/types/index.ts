@@ -23,6 +23,7 @@ export interface Project {
   name: string
   short_description: string | null
   description: string | null
+  video_url: string | null
   location_city: string
   location_zone: string | null
   price_base_cop: number | null

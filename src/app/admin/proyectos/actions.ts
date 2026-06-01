@@ -15,9 +15,13 @@ import type { CreateProjectInput } from '@/lib/data/admin'
 function revalidateAdminPaths(id?: string) {
   revalidatePath('/admin/proyectos', 'page')
   revalidatePath('/admin', 'page')
+  // Invalida el formulario de edición y la vitrina pública
   if (id) {
     revalidatePath(`/admin/proyectos/${id}/editar`, 'page')
   }
+  // Invalida todas las rutas dinámicas de proyectos en vitrina y admin
+  revalidatePath('/proyectos/[slug]', 'page')
+  revalidatePath('/admin/proyectos/[id]/editar', 'page')
 }
 
 export async function createProject(input: CreateProjectInput) {

@@ -53,7 +53,7 @@ export default async function HomePage() {
             <p className="text-[10px] font-bold text-rp-red tracking-widest uppercase">
               BIENVENIDO A RIVERPAR
             </p>
-            <h1 className="font-display text-[44px] font-bold leading-[1.15] text-rp-black">
+            <h1 className="font-display text-[44px] font-bold leading-[1.15] text-rp-burgundy">
               Encuentra tu próximo{' '}
               <span className="text-rp-red">hogar ideal.</span>
             </h1>
