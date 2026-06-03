@@ -20,7 +20,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   return (
     <article className="bg-white rounded-xl border border-rp-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col">
       {/* Imagen */}
-      <div className="relative h-[200px] bg-rp-gray-100 shrink-0">
+      <div className="relative h-[240px] bg-rp-gray-100 shrink-0">
         {project.mainImage ? (
           <Image
             src={project.mainImage.public_url}
@@ -43,12 +43,12 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       {/* Contenido */}
       <div className="p-5 flex flex-col flex-1 gap-3">
         {/* Nombre */}
-        <h3 className="font-display text-[17px] font-bold text-rp-black leading-snug line-clamp-2">
+        <h3 className="font-display text-xl font-bold text-rp-black leading-snug line-clamp-2">
           {project.name}
         </h3>
 
         {/* Ubicación */}
-        <p className="flex items-center gap-1.5 text-sm text-rp-gray-500">
+        <p className="flex items-center gap-1.5 text-base text-rp-black">
           <MapPin size={14} className="text-rp-red shrink-0" aria-hidden="true" />
           <span className="truncate">{location}</span>
         </p>
@@ -56,8 +56,8 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         {/* Precio */}
         <p
           className={cn(
-            'font-bold text-lg leading-none',
-            isPriceVisible ? 'text-rp-red' : 'text-rp-gray-500 font-normal text-sm'
+            'font-bold text-xl leading-none',
+            isPriceVisible ? 'text-rp-red' : 'text-rp-black font-normal text-base'
           )}
         >
           {price}
@@ -65,7 +65,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
         {/* Specs */}
         {hasSpecs && (
-          <div className="flex items-center gap-4 text-xs text-rp-gray-500 border-t border-rp-gray-200 pt-3 flex-wrap">
+          <div className="flex items-center gap-4 text-sm text-rp-black border-t border-rp-gray-200 pt-3 flex-wrap">
             {project.bedrooms !== null && (
               <span className="flex items-center gap-1">
                 <BedDouble size={14} aria-hidden="true" />
@@ -91,7 +91,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         <div className="mt-auto pt-1">
           <Link
             href={`/proyectos/${project.slug}`}
-            className="inline-flex items-center justify-center w-full border-2 border-rp-red text-rp-red hover:bg-rp-red hover:text-white font-medium text-sm px-5 py-2.5 rounded-md transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rp-red focus-visible:ring-offset-2"
+            className="inline-flex items-center justify-center w-full border-2 border-rp-red text-rp-red hover:bg-rp-red hover:text-white font-semibold text-base px-5 py-3 rounded-md transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rp-red focus-visible:ring-offset-2"
           >
             Ver detalles →
           </Link>

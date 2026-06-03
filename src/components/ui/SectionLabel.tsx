@@ -20,13 +20,13 @@ export default function SectionLabel({
       <p className="text-xs font-semibold uppercase tracking-widest text-rp-red">
         {eyebrow}
       </p>
-      <h2 className="font-display text-3xl md:text-4xl font-bold text-rp-black leading-tight">
+      <h2 className="font-display text-4xl md:text-5xl font-bold text-rp-black leading-tight">
         {title}
       </h2>
       {subtitle && (
         <p
           className={cn(
-            'text-rp-gray-500 text-lg leading-relaxed max-w-2xl',
+            'text-rp-black text-xl leading-relaxed max-w-2xl',
             centered && 'mx-auto'
           )}
         >

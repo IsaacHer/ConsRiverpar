@@ -50,7 +50,7 @@ export default function Navbar({ settings: _settings }: NavbarProps) {
                   key={href}
                   href={href}
                   className={cn(
-                    'text-sm font-medium pb-1 transition-colors duration-150',
+                    'text-base font-medium pb-1 transition-colors duration-150',
                     isActive
                       ? 'text-rp-red border-b-2 border-rp-red'
                       : 'text-rp-gray-700 hover:text-rp-red border-b-2 border-transparent'
@@ -89,7 +89,7 @@ export default function Navbar({ settings: _settings }: NavbarProps) {
                   href={href}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    'text-sm font-medium py-2.5 px-2 rounded transition-colors',
+                    'text-base font-medium py-2.5 px-2 rounded transition-colors',
                     isActive
                       ? 'text-rp-red bg-rp-red-light font-semibold'
                       : 'text-rp-gray-700 hover:text-rp-red hover:bg-rp-gray-100'

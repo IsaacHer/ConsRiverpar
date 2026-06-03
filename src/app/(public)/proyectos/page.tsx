@@ -20,8 +20,6 @@ export const metadata: Metadata = {
 
 type SearchParams = {
   estado?: string
-  precio_min?: string
-  precio_max?: string
   orden?: string
 }
 
@@ -39,17 +37,13 @@ export default async function ProyectosPage({
   const validEstado = VALID_STATUSES.includes(searchParams.estado as CommercialStatus)
     ? (searchParams.estado as CommercialStatus)
     : undefined
-  const validPrecioMin = searchParams.precio_min ? Number(searchParams.precio_min) : undefined
-  const validPrecioMax = searchParams.precio_max ? Number(searchParams.precio_max) : undefined
 
   const filters = {
     estado: validEstado,
-    precio_min: validPrecioMin,
-    precio_max: validPrecioMax,
     orden,
   }
 
-  const hasActiveFilters = !!(validEstado || validPrecioMin || validPrecioMax)
+  const hasActiveFilters = !!validEstado
 
   const [projects, settings] = await Promise.all([
     getPublicProjects(filters),
@@ -63,20 +57,20 @@ export default async function ProyectosPage({
   return (
     <>
       {/* ── Sección 1: Hero Strip ── */}
-      <section className="grid lg:grid-cols-2 min-h-[320px]">
-        <div className="flex items-center bg-rp-gray-100 px-8 sm:px-12 lg:px-16 xl:px-20 py-12 lg:py-0">
-          <div className="max-w-lg space-y-5">
-            <p className="text-[10px] font-bold text-rp-red tracking-widest uppercase">
+      <section className="grid lg:grid-cols-2 min-h-[420px]">
+        <div className="flex items-center bg-rp-gray-100 px-8 sm:px-14 lg:px-16 xl:px-24 py-20 lg:py-0">
+          <div className="max-w-xl space-y-8">
+            <p className="text-xs font-bold text-rp-red tracking-widest uppercase">
               PROYECTOS
             </p>
-            <h1 className="font-display text-[36px] sm:text-[42px] font-bold leading-[1.15] text-rp-black">
+            <h1 className="font-display text-5xl sm:text-[3.5rem] font-bold leading-[1.1] text-rp-black">
               Encuentra el proyecto{' '}
               <span className="text-rp-red">ideal para ti.</span>
             </h1>
-            <p className="text-sm text-rp-gray-700 leading-relaxed">
+            <p className="text-base text-rp-black leading-relaxed">
               Explora nuestro portafolio de proyectos residenciales en Cúcuta.
-              Filtra por estado comercial y rango de precio para encontrar exactamente
-              lo que buscas.
+              Filtra por estado comercial para encontrar
+              exactamente lo que buscas.
             </p>
           </div>
         </div>
@@ -126,7 +120,7 @@ export default async function ProyectosPage({
                 <p className="font-display text-xl font-bold text-rp-black">
                   No encontramos proyectos con estos criterios
                 </p>
-                <p className="text-sm text-rp-gray-500">
+                <p className="text-sm text-rp-black">
                   Intenta ajustando los filtros o explora todos nuestros proyectos.
                 </p>
               </div>
