@@ -1,13 +1,54 @@
 import Image from 'next/image'
-import { Award, Handshake, ShieldCheck, Headphones } from 'lucide-react'
+import {
+  Award, Handshake, ShieldCheck, Headphones,
+  Home, Wrench, HardHat, ClipboardList, ArrowRight
+} from 'lucide-react'
 import { getFeaturedProjects, getSiteSettings } from '@/lib/data/projects'
 import Button from '@/components/ui/Button'
 import Container from '@/components/ui/Container'
 import SectionLabel from '@/components/ui/SectionLabel'
-import HomeSearchBar from '@/components/projects/HomeSearchBar'
 import ProjectCard from '@/components/projects/ProjectCard'
 
 export const revalidate = 3600
+
+const SERVICES = [
+  {
+    Icon: Home,
+    tag: 'Residencial',
+    title: 'Vivienda nueva',
+    description:
+      'Proyectos de vivienda unifamiliar, multifamiliar y conjuntos residenciales en Cúcuta y área metropolitana. Desde preventa hasta entrega de llaves.',
+    color: 'bg-rp-red',
+    tagColor: 'bg-rp-red/10 text-rp-red',
+  },
+  {
+    Icon: HardHat,
+    tag: 'Edificación',
+    title: 'Obras no residenciales',
+    description:
+      'Construcción de edificaciones comerciales, institucionales e industriales adaptadas a las necesidades del cliente con criterios de eficiencia y seguridad estructural.',
+    color: 'bg-rp-burgundy',
+    tagColor: 'bg-rp-burgundy/10 text-rp-burgundy',
+  },
+  {
+    Icon: Wrench,
+    tag: 'Acabados',
+    title: 'Terminación y acabados',
+    description:
+      'Instalación de pisos, enchapes, pintura, carpintería, cielo raso, impermeabilización y detalles arquitectónicos que agregan valor y estética a cada proyecto.',
+    color: 'bg-rp-black',
+    tagColor: 'bg-rp-gray-200 text-rp-black',
+  },
+  {
+    Icon: ClipboardList,
+    tag: 'Consultoría',
+    title: 'Asesoría técnica',
+    description:
+      'Presupuestos, APU, programación de obra, interventoría y gestión documental. Procesos eficientes y transparentes para su proyecto.',
+    color: 'bg-rp-red',
+    tagColor: 'bg-rp-red/10 text-rp-red',
+  },
+]
 
 const WHY_ITEMS = [
   {
@@ -46,29 +87,29 @@ export default async function HomePage() {
   return (
     <>
       {/* ── Sección 1: Hero ── */}
-      <section className="grid lg:grid-cols-2 min-h-[480px]">
+      <section className="grid lg:grid-cols-2 min-h-[560px]">
         {/* Columna izquierda */}
-        <div className="flex items-center bg-rp-gray-100 px-8 sm:px-12 lg:px-16 xl:px-20 py-16 lg:py-0">
-          <div className="max-w-lg space-y-7">
-            <p className="text-[10px] font-bold text-rp-red tracking-widest uppercase">
+        <div className="flex items-center bg-white px-8 sm:px-14 lg:px-16 xl:px-24 py-20 lg:py-0">
+          <div className="max-w-xl space-y-8">
+            <p className="text-xs font-bold text-rp-red tracking-widest uppercase">
               BIENVENIDO A RIVERPAR
             </p>
-            <h1 className="font-display text-[44px] font-bold leading-[1.15] text-rp-burgundy">
+            <h1 className="font-display text-5xl md:text-[3.75rem] font-bold leading-[1.1] text-rp-burgundy">
               Encuentra tu próximo{' '}
               <span className="text-rp-red">hogar ideal.</span>
             </h1>
-            <p className="text-sm text-rp-gray-700 leading-relaxed">
+            <p className="text-base text-rp-gray-700 leading-relaxed max-w-md">
               Desarrollamos proyectos residenciales con los más altos estándares
-              de calidad, diseño y cumplimiento.
+              de calidad, diseño y cumplimiento en Cúcuta y Norte de Santander.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button href="/proyectos" size="md">Ver proyectos →</Button>
-              <Button href="/nosotros" variant="outline" size="md">
+              <Button href="/proyectos" size="lg">Ver proyectos →</Button>
+              <Button href="/nosotros" variant="outline" size="lg">
                 Sobre nosotros
               </Button>
             </div>
             {settings?.company_name && (
-              <p className="text-xs text-rp-gray-500">
+              <p className="text-sm text-rp-gray-500">
                 {settings.company_name} — comprometidos con tu futuro.
               </p>
             )}
@@ -89,20 +130,95 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Sección 2: Barra de búsqueda rápida ── */}
-      <div className="-mt-7 relative z-10 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
-          <HomeSearchBar />
-        </div>
-      </div>
+      {/* ── Sección 2: Portafolio de servicios ── */}
+      <section className="py-24 bg-rp-gray-100 overflow-hidden">
+        <Container>
+          {/* Encabezado */}
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
+            <div className="space-y-4 max-w-2xl">
+              <p className="text-xs font-bold text-rp-red tracking-widest uppercase">
+                PORTAFOLIO DE SERVICIOS
+              </p>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-rp-black leading-tight">
+                Más que una constructora.{' '}
+                <span className="text-rp-red">Una solución integral.</span>
+              </h2>
+              <p className="text-base text-rp-gray-700 leading-relaxed">
+                No solo construimos vivienda. Ofrecemos un portafolio completo de servicios
+                en edificación, acabados e ingeniería para particulares y empresas en Norte
+                de Santander.
+              </p>
+            </div>
+            <Button
+              href="/nosotros"
+              variant="outline"
+              size="lg"
+              className="shrink-0"
+            >
+              Ver todo lo que hacemos →
+            </Button>
+          </div>
+
+          {/* Grid de servicios */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {SERVICES.map(({ Icon, tag, title, description, color, tagColor }) => (
+              <div
+                key={title}
+                className="group bg-white border border-rp-gray-200 hover:border-rp-red/40 rounded-2xl p-8 flex flex-col gap-6 transition-all duration-300 shadow-sm hover:shadow-lg"
+              >
+                {/* Ícono grande */}
+                <div className={`w-16 h-16 rounded-2xl ${color} flex items-center justify-center shrink-0`}>
+                  <Icon size={30} className="text-white" aria-hidden="true" />
+                </div>
+
+                {/* Tag */}
+                <span className={`inline-flex w-fit text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${tagColor}`}>
+                  {tag}
+                </span>
+
+                {/* Texto */}
+                <div className="flex flex-col gap-3 flex-1">
+                  <h3 className="font-display text-xl font-bold text-rp-black leading-snug">{title}</h3>
+                  <p className="text-sm text-rp-black leading-relaxed">{description}</p>
+                </div>
+
+                <ArrowRight
+                  size={20}
+                  className="text-rp-red opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-hidden="true"
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Franja de cifras */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-px bg-rp-gray-200 rounded-2xl overflow-hidden">
+            {[
+              { num: '+15', label: 'Años de trayectoria' },
+              { num: '100%', label: 'Compromiso con la calidad' },
+              { num: '4', label: 'Áreas de servicio' },
+              { num: 'CÚCUTA', label: 'y área metropolitana' },
+            ].map(({ num, label }) => (
+              <div key={label} className="bg-white px-6 py-10 text-center space-y-2">
+                <p className="font-display text-4xl font-bold text-rp-red">{num}</p>
+                <p className="text-sm text-rp-black leading-snug">{label}</p>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
 
       {/* ── Sección 3: Proyectos destacados ── */}
       <section className="pt-20 pb-16 bg-white">
         <Container>
-          <SectionLabel
-            eyebrow="PROYECTOS DESTACADOS"
-            title="Conoce nuestros proyectos más recientes"
-          />
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-widest text-rp-red">
+              Espacios que Cobran Vida
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-rp-black leading-tight">
+              Conoce nuestros proyectos destacados.
+            </h2>
+          </div>
 
           <div className="mt-10">
             {projects.length === 0 ? (
@@ -152,7 +268,7 @@ export default async function HomePage() {
                 <h3 className="font-display text-lg font-bold text-rp-black">
                   {title}
                 </h3>
-                <p className="text-sm text-rp-gray-500 leading-relaxed">
+                <p className="text-base text-rp-black leading-relaxed">
                   {description}
                 </p>
               </div>

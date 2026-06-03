@@ -185,17 +185,7 @@ export default async function ProjectDetailPage({
                   rel="noopener noreferrer"
                   className="w-full"
                 >
-                  Contactar asesor
-                </Button>
-                <Button
-                  href={waUrl}
-                  variant="outline"
-                  size="lg"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full"
-                >
-                  Solicitar más información
+                  Solicita más información
                 </Button>
               </div>
 
@@ -259,25 +249,20 @@ export default async function ProjectDetailPage({
       )}
 
       {/* ── Banner CTA final ── */}
-      <section className="py-12 bg-rp-red-light border-y border-rp-red/20">
+      <section className="py-6 bg-rp-red-light border-y border-rp-red/20">
         <Container>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10">
-            <div className="flex items-start md:items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-rp-red flex items-center justify-center shrink-0">
-                <Headphones size={22} className="text-white" aria-hidden="true" />
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-rp-red flex items-center justify-center shrink-0">
+                <Headphones size={18} className="text-white" aria-hidden="true" />
               </div>
-              <div>
-                <p className="font-semibold text-rp-black text-base md:text-lg">
-                  ¿Te interesa este proyecto?
-                </p>
-                <p className="text-sm text-rp-gray-700 mt-1">
-                  Nuestro equipo está listo para ayudarte a encontrar tu nuevo hogar.
-                </p>
-              </div>
+              <p className="text-sm font-medium text-rp-black">
+                ¿Te interesa este proyecto? Nuestro equipo está listo para ayudarte.
+              </p>
             </div>
             <Button
               href={waUrl}
-              size="lg"
+              size="md"
               target="_blank"
               rel="noopener noreferrer"
               className="shrink-0 whitespace-nowrap"

@@ -35,7 +35,7 @@ export default function Footer({ settings }: FooterProps) {
                 height={36}
                 className="object-contain h-9 w-auto"
               />
-              <p className="text-sm text-rp-gray-500 mt-3 leading-relaxed">
+              <p className="text-base text-rp-gray-500 mt-3 leading-relaxed">
                 Construimos el hogar de tus sueños con calidad, confianza y visión de futuro.
               </p>
             </div>
@@ -66,15 +66,15 @@ export default function Footer({ settings }: FooterProps) {
 
           {/* Col 2 — Navegación */}
           <div>
-            <h3 className="text-xs font-semibold text-rp-gray-200 uppercase tracking-wider mb-5">
+            <h3 className="text-sm font-semibold text-rp-gray-200 uppercase tracking-wider mb-5">
               Navegación
             </h3>
-            <ul className="space-y-2.5">
+            <ul className="space-y-3">
               {navLinks.map(({ label, href }) => (
                 <li key={href}>
                   <Link
                     href={href}
-                    className="text-sm text-rp-gray-500 hover:text-white transition-colors"
+                    className="text-base text-rp-gray-500 hover:text-white transition-colors"
                   >
                     {label}
                   </Link>
@@ -85,15 +85,15 @@ export default function Footer({ settings }: FooterProps) {
 
           {/* Col 3 — Proyectos */}
           <div>
-            <h3 className="text-xs font-semibold text-rp-gray-200 uppercase tracking-wider mb-5">
+            <h3 className="text-sm font-semibold text-rp-gray-200 uppercase tracking-wider mb-5">
               Proyectos
             </h3>
-            <ul className="space-y-2.5">
+            <ul className="space-y-3">
               {projectLinks.map(({ label, href }) => (
                 <li key={href}>
                   <Link
                     href={href}
-                    className="text-sm text-rp-gray-500 hover:text-white transition-colors"
+                    className="text-base text-rp-gray-500 hover:text-white transition-colors"
                   >
                     {label}
                   </Link>
@@ -104,24 +104,24 @@ export default function Footer({ settings }: FooterProps) {
 
           {/* Col 4 — Contacto */}
           <div>
-            <h3 className="text-xs font-semibold text-rp-gray-200 uppercase tracking-wider mb-5">
+            <h3 className="text-sm font-semibold text-rp-gray-200 uppercase tracking-wider mb-5">
               Contacto
             </h3>
             <ul className="space-y-3">
               {settings?.address && (
-                <li className="flex items-start gap-2.5 text-sm text-rp-gray-500">
+                <li className="flex items-start gap-2.5 text-base text-rp-gray-500">
                   <MapPin size={15} className="mt-0.5 shrink-0 text-rp-red" />
                   <span>{settings.address}</span>
                 </li>
               )}
               {settings?.contact_whatsapp && (
-                <li className="flex items-center gap-2.5 text-sm text-rp-gray-500">
+                <li className="flex items-center gap-2.5 text-base text-rp-gray-500">
                   <Phone size={15} className="shrink-0 text-rp-red" />
                   <span>{settings.contact_whatsapp}</span>
                 </li>
               )}
               {settings?.contact_email && (
-                <li className="flex items-center gap-2.5 text-sm text-rp-gray-500">
+                <li className="flex items-center gap-2.5 text-base text-rp-gray-500">
                   <Mail size={15} className="shrink-0 text-rp-red" />
                   <span>{settings.contact_email}</span>
                 </li>
@@ -139,7 +139,7 @@ export default function Footer({ settings }: FooterProps) {
       {/* Bottom bar */}
       <div className="border-t border-rp-gray-700">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-5">
-          <p className="text-xs text-rp-gray-500 text-center">
+          <p className="text-sm text-rp-gray-500 text-center">
             © 2025 Riverpar Constructora SAS. Todos los derechos reservados.
           </p>
         </div>

@@ -25,10 +25,13 @@ function getEmbedUrl(url: string): string | null {
   try {
     const u = new URL(url)
     if (u.hostname.includes('youtube.com')) {
+      // YouTube Shorts: /shorts/ID
+      if (u.pathname.includes('/shorts/')) {
+        const id = u.pathname.split('/shorts/')[1]?.split('/')[0]
+        return id ? `https://www.youtube.com/embed/${id}?autoplay=1` : null
+      }
       const id = u.searchParams.get('v')
-      return id
-        ? `https://www.youtube.com/embed/${id}?autoplay=1`
-        : null
+      return id ? `https://www.youtube.com/embed/${id}?autoplay=1` : null
     }
     if (u.hostname === 'youtu.be') {
       const id = u.pathname.slice(1)
@@ -124,13 +127,24 @@ export default function ProjectGallery({
   const visibleItems = items.slice(0, MAX_VISIBLE_THUMBNAILS)
   const hiddenCount = total - MAX_VISIBLE_THUMBNAILS
 
+  const isVerticalVideo =
+    activeItem?.type === 'video' &&
+    activeItem.embedUrl.includes('shorts')
+
   return (
     <>
       <div className="space-y-3">
 
         {/* ── Slot principal ── */}
-        <div className="relative h-[380px] rounded-xl overflow-hidden
-          bg-rp-gray-100 group">
+        <div
+          className={cn(
+            'relative rounded-xl overflow-hidden bg-rp-gray-100 group',
+            isVerticalVideo
+              ? 'w-full max-w-[320px] mx-auto' // contenedor estrecho para 9:16
+              : 'h-[380px]'
+          )}
+          style={isVerticalVideo ? { aspectRatio: '9/16' } : undefined}
+        >
 
           {/* IMAGEN activa */}
           {activeItem?.type === 'image' && (
