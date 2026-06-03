@@ -27,11 +27,11 @@ export default function Navbar({ settings: _settings }: NavbarProps) {
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[68px]">
-          {/* Logo */}
+          {/* logo */}
           <Link href="/" aria-label="Inicio — Constructora Riverpar SAS">
             <div className="px-1 py-0.5">
               <Image
-                src="/images/Logo-png.png"
+                src="/images/logo-png.png"
                 alt="Constructora Riverpar SAS"
                 priority
                 width={160}
