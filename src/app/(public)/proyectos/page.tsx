@@ -20,6 +20,8 @@ export const metadata: Metadata = {
 
 type SearchParams = {
   estado?: string
+  precio_min?: string
+  precio_max?: string
   orden?: string
 }
 
@@ -37,13 +39,17 @@ export default async function ProyectosPage({
   const validEstado = VALID_STATUSES.includes(searchParams.estado as CommercialStatus)
     ? (searchParams.estado as CommercialStatus)
     : undefined
+  const validPrecioMin = searchParams.precio_min ? Number(searchParams.precio_min) : undefined
+  const validPrecioMax = searchParams.precio_max ? Number(searchParams.precio_max) : undefined
 
   const filters = {
     estado: validEstado,
+    precio_min: validPrecioMin,
+    precio_max: validPrecioMax,
     orden,
   }
 
-  const hasActiveFilters = !!validEstado
+  const hasActiveFilters = !!(validEstado || validPrecioMin || validPrecioMax)
 
   const [projects, settings] = await Promise.all([
     getPublicProjects(filters),
