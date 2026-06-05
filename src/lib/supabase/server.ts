@@ -2,10 +2,9 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 export function createClient() {
-  // Supabase renamed "anon key" to "publishable key" in 2024 — support both names
+  // Supabase renamed "anon key" to "publishable key" in 2024
   const supabaseKey =
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
     ''
 
   try {
