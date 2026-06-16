@@ -1,6 +1,10 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+function isSupabaseAuthCookie(name: string) {
+  return name.startsWith('sb-') && name.includes('-auth-token')
+}
+
 export function createClient() {
   // Supabase renamed "anon key" to "publishable key" in 2024
   const supabaseKey =
@@ -16,7 +20,9 @@ export function createClient() {
       {
         cookies: {
           getAll() {
-            return cookieStore.getAll()
+            return cookieStore
+              .getAll()
+              .filter((c) => !isSupabaseAuthCookie(c.name))
           },
           setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
             try {

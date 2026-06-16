@@ -83,8 +83,8 @@ export default async function ProyectosPage({
 
         <div className="relative min-h-[240px] lg:min-h-0">
           <Image
-            src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&q=80&auto=format&fit=crop"
-            alt="Edificios residenciales — catálogo Riverpar SAS"
+            src="/proyectos-hero.jpg"
+            alt="Fachada de proyecto residencial — catálogo Riverpar SAS"
             fill
             className="object-cover"
             priority

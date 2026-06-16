@@ -119,7 +119,7 @@ export default async function HomePage() {
         {/* Columna derecha — imagen */}
         <div className="relative min-h-[360px] lg:min-h-0">
           <Image
-            src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&q=80&auto=format&fit=crop"
+            src="/init-image.jpeg"
             alt="Proyecto residencial de alta calidad — Riverpar SAS"
             fill
             className="object-cover"
