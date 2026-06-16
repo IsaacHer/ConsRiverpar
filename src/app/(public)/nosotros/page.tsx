@@ -118,8 +118,8 @@ export default async function NosotrosPage() {
 
         <div className="relative min-h-[320px] lg:min-h-0">
           <Image
-            src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&q=80&auto=format&fit=crop"
-            alt="Obra de construcción — Riverpar SAS"
+            src="/nosotros-hero.jpg"
+            alt="Equipo Riverpar SAS en obra de construcción"
             fill
             className="object-cover"
             priority
